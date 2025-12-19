@@ -1,0 +1,77 @@
+import React, { memo } from "react";
+import { PostType } from "../stores/post.store";
+import Image from "next/image";
+import {
+  MessageCircle,
+  Repeat,
+  Heart,
+  BarChart2,
+  Bookmark,
+  Share,
+  Ellipsis,
+} from "lucide-react";
+
+const PostCard = ({ post }: { post: PostType }) => {
+  return (
+    <div className="border-t border-border flex items-start gap-2 p-4 hover:bg-secondary-bg">
+      <div className="relative w-8 aspect-square overflow-hidden rounded-full">
+        <Image src={post.author.avatarUrl} alt="avatar" fill />
+      </div>
+      {/* main */}
+      <div className="flex-1 space-y-2 overflow-hidden">
+        {/* author */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-x-2">
+            <span className="font-bold">{post.author.name}</span>
+            <span className="text-secondary">@{post.author.username}</span>
+            <span className="text-secondary">7m ago</span>
+          </div>
+          <button>
+            <Ellipsis size={18} />
+          </button>
+        </div>
+        {post.context && (
+          <div dangerouslySetInnerHTML={{ __html: post.context }}></div>
+        )}
+        {post.mediaUrl && (
+          <div className="w-1/2 aspect-square relative rounded-lg overflow-hidden">
+            <Image
+              src={post.mediaUrl}
+              alt={post.mediaUrl}
+              fill
+              className="object-center object-cover"
+            />
+          </div>
+        )}
+        {/* action */}
+        <div className="text-secondary flex justify-between gap-4">
+          <button className="flex items-center gap-1">
+            <MessageCircle size={18} />
+            {post.totalComments}
+          </button>
+          <button className="flex items-center gap-1">
+            <Repeat size={18} />
+            {post.totalShares}
+          </button>
+          <button className="flex items-center gap-1">
+            <Heart size={18} />
+            {post.totalFavorites}
+          </button>
+          <button>
+            <BarChart2 size={18} />
+          </button>
+          <div className="space-x-1">
+            <button>
+              <Bookmark size={18} />
+            </button>
+            <button>
+              <Share size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default memo(PostCard);
