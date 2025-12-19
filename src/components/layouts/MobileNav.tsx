@@ -10,6 +10,7 @@ const MobileNav = () => {
     <nav
       className="fixed bottom-0 left-0 right-0 border-t border-t-border bg-background
     grid grid-cols-5 justify-items-center
+    sm:hidden
     "
     >
       {SIDEBAR_ITEMS.slice(0, 5).map((item) => {
