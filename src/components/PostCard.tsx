@@ -10,12 +10,18 @@ import {
   Share,
   Ellipsis,
 } from "lucide-react";
+import { IMAGES_DEFAULT } from "../constants/img";
 
 const PostCard = ({ post }: { post: PostType }) => {
   return (
-    <div className="border-t border-border flex items-start gap-2 p-4 hover:bg-secondary-bg">
-      <div className="relative w-8 aspect-square overflow-hidden rounded-full">
-        <Image src={post.author.avatarUrl} alt="avatar" fill />
+    <div className="border-t border-border flex items-start gap-4 p-4 hover:bg-secondary-bg">
+      <div className="relative w-10 aspect-square overflow-hidden rounded-full">
+        <Image
+          src={post.author.avatarUrl || IMAGES_DEFAULT.AVATAR}
+          alt="avatar"
+          fill
+          loading="lazy"
+        />
       </div>
       {/* main */}
       <div className="flex-1 space-y-2 overflow-hidden">
@@ -34,14 +40,15 @@ const PostCard = ({ post }: { post: PostType }) => {
           <div dangerouslySetInnerHTML={{ __html: post.context }}></div>
         )}
         {post.mediaUrl && (
-          <div className="w-1/2 aspect-square relative rounded-lg overflow-hidden">
-            <Image
-              src={post.mediaUrl}
-              alt={post.mediaUrl}
-              fill
-              className="object-center object-cover"
-            />
-          </div>
+          <Image
+            key={post.mediaUrl}
+            src={post.mediaUrl}
+            alt={post.mediaUrl}
+            width={256}
+            height={256}
+            unoptimized
+            className="rounded-lg"
+          />
         )}
         {/* action */}
         <div className="text-secondary flex justify-between gap-4">
@@ -50,11 +57,17 @@ const PostCard = ({ post }: { post: PostType }) => {
             {post.totalComments}
           </button>
           <button className="flex items-center gap-1">
-            <Repeat size={18} />
+            <Repeat
+              size={18}
+              className={post.isShares ? `text-green-500` : ``}
+            />
             {post.totalShares}
           </button>
           <button className="flex items-center gap-1">
-            <Heart size={18} />
+            <Heart
+              size={18}
+              className={post.isFavorite ? `text-pink-500` : ``}
+            />
             {post.totalFavorites}
           </button>
           <button>
@@ -62,7 +75,10 @@ const PostCard = ({ post }: { post: PostType }) => {
           </button>
           <div className="space-x-1">
             <button>
-              <Bookmark size={18} />
+              <Bookmark
+                size={18}
+                className={post.isFavorite ? `text-blue-500` : ``}
+              />
             </button>
             <button>
               <Share size={18} />

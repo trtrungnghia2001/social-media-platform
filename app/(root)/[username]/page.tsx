@@ -1,10 +1,13 @@
 "use client";
 import Feed from "@/src/components/Feed";
+import { IMAGES_DEFAULT } from "@/src/constants/img";
+import { user } from "@/src/data";
 import { ArrowLeft, CalendarDays, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 const UserName = () => {
+  const userDetail = user;
   return (
     <div>
       {/* top */}
@@ -22,51 +25,53 @@ const UserName = () => {
           <p className="text-13 text-secondary">1 post</p>
         </div>
       </div>
-      <div className="bg-secondary-bg relative mb-16">
-        <Image
-          src={`https://pbs.twimg.com/profile_banners/1504011781420699651/1766128526/1080x360`}
-          alt="thumbnail"
-          width={1080}
-          height={200}
-          sizes="100vw"
-          className="w-full h-auto object-cover object-center"
-        />
+      <div className="bg-secondary-bg relative mb-16 w-full h-52">
+        {userDetail.backgroundUrl && (
+          <Image
+            src={userDetail.backgroundUrl}
+            alt="thumbnail"
+            fill
+            className="object-cover object-center"
+          />
+        )}
         <div className="absolute bottom-0 left-4 right-4 translate-y-1/2 flex items-center justify-between gap-4">
           <div className="rounded-full overflow-hidden p-1 bg-background">
             <Image
-              src={`https://pbs.twimg.com/profile_images/2001914859773202432/Bsabgg43_400x400.jpg`}
+              src={userDetail.avatarUrl || IMAGES_DEFAULT.AVATAR}
               alt="avatar"
-              width={1080}
-              height={200}
+              width={128}
+              height={128}
               sizes="100vw"
-              className="w-32 aspect-square rounded-full object-cover object-center"
+              className="rounded-full object-cover object-center"
             />
           </div>
-          <button className="mt-16 btn">Edit profile</button>
+          <button className="mt-16 btn font-bold">Edit profile</button>
         </div>
       </div>
       {/* info */}
       <div className="p-4 space-y-2">
-        <h3 className="font-bold text-xl leading-2">Trần Trung Nghĩa</h3>
-        <p className="text-secondary">@Tr_TrungNghia</p>
+        <h3 className="font-bold text-xl leading-2">{userDetail.name}</h3>
+        <p className="text-secondary">@{userDetail.username}</p>
         <div
           className="whitespace-break-spaces"
           dangerouslySetInnerHTML={{
-            __html: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum accusantium aspernatur similique dolorum ex nobis, quam distinctio, rem ut sequi, odit velit nam nemo hic modi. Incidunt eaque impedit tenetur.`,
+            __html: userDetail.bio || "",
           }}
         />
         <div className="flex flex-wrap items-center gap-4">
+          {userDetail.websiteUrl && (
+            <div className="text-secondary flex items-center gap-2">
+              <LinkIcon size={16} />
+              <Link
+                href={userDetail.websiteUrl}
+                className="underline text-blue-500"
+              >
+                {userDetail.websiteUrl}
+              </Link>
+            </div>
+          )}
           <div className="text-secondary flex items-center gap-2">
-            <LinkIcon size={16} />
-            <Link
-              href={`https://trungnghia-dev.vercel.app/`}
-              className="underline text-blue-500"
-            >
-              https://trungnghia-dev.vercel.app/
-            </Link>
-          </div>
-          <div className="text-secondary flex items-center gap-2">
-            <CalendarDays size={16} /> Join in June 2022
+            <CalendarDays size={16} /> Join in {new Date().toDateString()}
           </div>
         </div>
         <div className="flex items-center gap-4">

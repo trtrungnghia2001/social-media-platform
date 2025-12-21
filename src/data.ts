@@ -1,167 +1,150 @@
 import { AuthType } from "./stores/auth.store";
+import { ContactType, MessageType } from "./stores/message.store";
 import { PostType } from "./stores/post.store";
 
 export const user: AuthType = {
-  _id: "cacas1413",
+  _id: "u1",
   name: "Tran Trung Nghia",
-  avatarUrl:
-    "https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png",
   username: "Tr_TrungNghia",
+  avatarUrl:
+    "https://pbs.twimg.com/profile_images/2001914859773202432/Bsabgg43_400x400.jpg",
+  backgroundUrl:
+    "https://pbs.twimg.com/profile_banners/1504011781420699651/1766128526/1080x360",
+  websiteUrl: "patreon.com/jared999d",
+  bio: `Hi. I am Jared999D!<br/>No commissions.`,
 };
+
+// post
 export const MOCK_USERS: AuthType[] = [
   {
     _id: "u1",
-    name: "Nghĩa Trần",
-    username: "nghiadev",
-    avatarUrl: "https://i.pravatar.cc/150?img=1",
+    name: "Gemini AI",
+    username: "gemini_assistant",
+    avatarUrl: "https://i.pravatar.cc/150?u=u1",
+    backgroundUrl: "https://picsum.photos/seed/bg1/800/400",
+    bio: "I am a helpful AI thought partner.",
+    websiteUrl: "https://gemini.google.com",
   },
   {
     _id: "u2",
-    name: "Phương Lê",
-    username: "phuongle",
-    avatarUrl: "https://i.pravatar.cc/150?img=2",
+    name: "Trần Thế Trung",
+    username: "trunghandsome",
+    avatarUrl: "https://i.pravatar.cc/150?u=u2",
+    backgroundUrl: "https://picsum.photos/seed/bg2/800/400",
+    bio: "Fullstack Developer in the making 🚀",
+    websiteUrl: "https://github.com/trunghandsome",
   },
   {
     _id: "u3",
-    name: "Lâm Dev",
-    username: "lamadev",
-    avatarUrl: "https://i.pravatar.cc/150?img=3",
+    name: "NextJS Vietnam",
+    username: "nextjs_vn",
+    avatarUrl: "https://i.pravatar.cc/150?u=u3",
+    bio: "Cộng đồng Next.js lớn nhất Việt Nam 🇻🇳",
   },
 ];
-export const MOCK_POSTS: PostType[] = [
-  {
-    id: "p1",
-    author: MOCK_USERS[0],
-    context: "Just finished building my first Next.js App Router project 🚀",
-    mediaUrl: "",
-    totalComments: 12,
-    totalShares: 4,
-    totalFavorites: 31,
-  },
-  {
-    id: "p2",
-    author: MOCK_USERS[1],
-    context: "Dark mode + shadcn/ui is such a clean combo 🖤",
-    mediaUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475",
-    totalComments: 8,
-    totalShares: 2,
-    totalFavorites: 19,
-  },
-  {
-    id: "p3",
-    author: MOCK_USERS[2],
-    context: "Debugging until 2AM hits different 😵‍💫",
-    mediaUrl: "",
-    totalComments: 15,
-    totalShares: 6,
-    totalFavorites: 42,
-  },
-  {
-    id: "p4",
-    author: MOCK_USERS[0],
-    context: "Zustand > Redux for most small to medium apps. Change my mind.",
-    mediaUrl: "",
-    totalComments: 22,
-    totalShares: 10,
-    totalFavorites: 58,
-  },
-  {
-    id: "p5",
-    author: MOCK_USERS[1],
-    context: "Map-based apps are way more fun than CRUD dashboards 🗺️",
-    mediaUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-    totalComments: 11,
-    totalShares: 3,
-    totalFavorites: 27,
-  },
-  {
-    id: "p6",
-    author: MOCK_USERS[2],
-    context: "If it works… don’t touch it. If it doesn’t… blame CORS 😅",
-    mediaUrl: "",
-    totalComments: 18,
-    totalShares: 7,
-    totalFavorites: 49,
-  },
-  {
-    id: "p7",
-    author: MOCK_USERS[0],
-    context: "Clerk + Prisma + Postgres is a solid auth stack 🔐",
-    mediaUrl: "",
-    totalComments: 9,
-    totalShares: 2,
-    totalFavorites: 21,
-  },
-  {
-    id: "p8",
-    author: MOCK_USERS[1],
-    context: "Anyone else love building side projects more than using them?",
-    mediaUrl: "",
-    totalComments: 14,
-    totalShares: 5,
-    totalFavorites: 33,
-  },
-  {
-    id: "p9",
-    author: MOCK_USERS[2],
-    context: "Infinite scroll is easy until performance says hello 👋",
-    mediaUrl: "",
-    totalComments: 20,
-    totalShares: 8,
-    totalFavorites: 44,
-  },
-  {
-    id: "p10",
-    author: MOCK_USERS[0],
-    context: "Thinking about turning my map app into a social platform 🤔",
-    mediaUrl: "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
-    totalComments: 17,
-    totalShares: 6,
-    totalFavorites: 39,
-  },
-  {
-    id: "p11",
-    author: MOCK_USERS[1],
-    context: "Hot take: most apps don’t need microservices at all.",
-    mediaUrl: "",
-    totalComments: 26,
-    totalShares: 12,
-    totalFavorites: 61,
-  },
-  {
-    id: "p12",
-    author: MOCK_USERS[2],
-    context: "When the hydration error disappears after a full reload 😌",
-    mediaUrl: "",
-    totalComments: 7,
-    totalShares: 1,
-    totalFavorites: 16,
-  },
-  {
-    id: "p13",
-    author: MOCK_USERS[0],
-    context: "Spent more time naming variables than writing logic today.",
-    mediaUrl: "",
-    totalComments: 13,
-    totalShares: 4,
-    totalFavorites: 28,
-  },
-  {
-    id: "p14",
-    author: MOCK_USERS[1],
-    context: "Side projects are the best way to learn real-world problems 💡",
-    mediaUrl: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
-    totalComments: 10,
-    totalShares: 3,
-    totalFavorites: 25,
-  },
-  {
-    id: "p15",
-    author: MOCK_USERS[2],
-    context: "Shipping something imperfect beats waiting forever 🚢",
-    mediaUrl: "",
-    totalComments: 19,
-    totalShares: 9,
-    totalFavorites: 47,
-  },
+
+const SAMPLE_CONTEXTS = [
+  "Vừa setup xong Prisma 7 trên Windows, chạy mượt mà không lỗi EPERM!",
+  "Anh em đã thử Cloudinary để upload ảnh trong Next.js chưa?",
+  "Mạng xã hội này dùng PostgreSQL làm database thì quá chuẩn.",
+  "Hôm nay trời đẹp, làm vài dòng code rồi đi cafe thôi. ☕",
+  "Ai biết cách fix lỗi Hydration Mismatch trong Next.js 15 không?",
+  "Đang viết script test database, mong là mọi thứ ổn định.",
+  "Dự án cá nhân đầu tay, tuy đơn giản nhưng tự hào lắm.",
+  "Tailwind CSS v4 sắp ra mắt, anh em có hóng không?",
+  "Học React 19 thấy Server Actions thực sự thay đổi cuộc chơi.",
+  "Code xuyên màn đêm để kịp deadline ngày mai... 😴",
 ];
+
+export const MOCK_POSTS: PostType[] = Array.from({ length: 40 }).map(
+  (_, index) => {
+    const user = MOCK_USERS[index % MOCK_USERS.length];
+    // 70% bài viết có ảnh
+    const hasImage = Math.random() > 0.3;
+
+    return {
+      id: `p${index + 1}`,
+      author: user,
+      context:
+        SAMPLE_CONTEXTS[index % SAMPLE_CONTEXTS.length] +
+        ` (Post #${index + 1})`,
+      mediaUrl: hasImage ? `https://picsum.photos/seed/${index}/800/600` : "",
+      totalComments: Math.floor(Math.random() * 50),
+      totalShares: Math.floor(Math.random() * 20),
+      totalFavorites: Math.floor(Math.random() * 300),
+      isShares: Math.random() > 0.8,
+      isFavorite: Math.random() > 0.5,
+      isBookmark: Math.random() > 0.7,
+    };
+  }
+);
+
+// messages
+export const MOCK_MESSAGES: MessageType[] = [
+  {
+    id: "m1",
+    senderId: "u1",
+    receiverId: "u2",
+    content: "Chào Trung! Bạn đã setup xong Prisma chưa?",
+    isRead: true,
+    createdAt: "2025-12-21T08:00:00Z",
+  },
+  {
+    id: "m2",
+    senderId: "u2",
+    receiverId: "u1",
+    content: "Chào Gemini, mình vừa xong rồi. Giờ đang làm đến phần Chat!",
+    isRead: true,
+    createdAt: "2025-12-21T08:02:00Z",
+  },
+  {
+    id: "m3",
+    senderId: "u1",
+    receiverId: "u2",
+    content: "Tuyệt vời! Bạn có cần mình hỗ trợ về Socket.io hay Pusher không?",
+    isRead: true,
+    createdAt: "2025-12-21T08:05:00Z",
+  },
+  {
+    id: "m4",
+    senderId: "u2",
+    receiverId: "u1",
+    mediaUrl: "https://picsum.photos/seed/chat1/400/300",
+    content: "Đây là giao diện mình vừa code xong nè.",
+    isRead: false,
+    createdAt: "2025-12-21T08:10:00Z",
+  },
+  // Bạn có thể dùng Array.from để tạo thêm tin nhắn nếu cần test scroll
+].concat(
+  Array.from({ length: 16 }).map((_, i) => ({
+    id: `m-extra-${i}`,
+    senderId: i % 2 === 0 ? "u1" : "u2",
+    receiverId: i % 2 === 0 ? "u2" : "u1",
+    content: `Tin nhắn tự động thứ ${i + 1} để test giao diện scroll chat.`,
+    isRead: true,
+    createdAt: new Date(Date.now() + i * 1000).toISOString(),
+  }))
+);
+
+// contact
+
+export const MOCK_CONTACTS: ContactType[] = Array.from({ length: 40 }).map(
+  (_, index) => ({
+    _id: `u${index + 1}`,
+    name: `User thứ ${index + 1}`,
+    username: `user_name_${index + 1}`,
+    avatarUrl: `https://i.pravatar.cc/150?u=${index + 1}`,
+    bio: "Testing scroll side bar chat...",
+    lastMessage: {
+      id: `m-last-${index}`,
+      senderId: index % 2 === 0 ? `u${index + 1}` : "u2", // u2 là chính mình
+      receiverId: index % 2 === 0 ? "u2" : `u${index + 1}`,
+      content:
+        index === 0
+          ? "Tin nhắn mới nhất nằm đây nè bro! 🔥"
+          : `Nội dung tin nhắn cuối cùng của user ${index + 1}`,
+      isRead: index > 5, // 5 người đầu tiên có tin nhắn chưa đọc
+      createdAt: new Date(Date.now() - index * 100000).toISOString(),
+    },
+  })
+);

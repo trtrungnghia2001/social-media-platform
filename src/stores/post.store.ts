@@ -9,18 +9,21 @@ export type PostType = {
   totalComments: number;
   totalShares: number;
   totalFavorites: number;
+  isShares: boolean;
+  isFavorite: boolean;
+  isBookmark: boolean;
 };
 
 type PostStoreType = {
   posts: PostType[];
-  create: (data: Partial<PostType>) => void;
+  create: ({ content, files }: { content: string; files: FileList }) => void;
 };
 
 export const usePostStore = create<PostStoreType>()((set, get) => ({
   posts: [],
   create: (data) => {
     set({
-      //   posts: [data, ...get().posts],
+      // posts: [data, ...get().posts],
     });
   },
 }));

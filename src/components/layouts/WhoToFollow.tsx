@@ -53,7 +53,7 @@ const WhoToFollow = () => {
             </div>
           </div>
 
-          <button className="btn text-13">Follow</button>
+          <button className="btn text-13 font-bold">Follow</button>
         </div>
       ))}
       <div>

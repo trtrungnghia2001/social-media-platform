@@ -1,5 +1,4 @@
 "use client";
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 type ThemeType = "dark" | "light";
@@ -22,6 +21,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
     localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 

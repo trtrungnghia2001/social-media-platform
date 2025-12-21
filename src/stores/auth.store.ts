@@ -6,7 +6,10 @@ export type AuthType = {
   _id: string;
   name: string;
   username: string;
-  avatarUrl: string;
+  avatarUrl?: string;
+  backgroundUrl?: string;
+  bio?: string;
+  websiteUrl?: string;
 };
 type AuthStoreType = {
   auth: AuthType | null;
