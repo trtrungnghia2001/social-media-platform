@@ -3,8 +3,9 @@ import { IMAGES_DEFAULT } from "@/src/constants/img";
 import { SIDEBAR_ITEMS } from "@/src/constants/path";
 import { useTheme } from "@/src/contexts/useTheme";
 import { useAuthStore } from "@/src/stores/auth.store";
+import { useClerk } from "@clerk/nextjs";
 import clsx from "clsx";
-import { Moon, Sun } from "lucide-react";
+import { LogIn, LogOut, Moon, Sun } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -15,8 +16,9 @@ export default function Sidebar({
   ...props
 }: ComponentProps<"aside">) {
   const pathname = usePathname();
-  const { auth } = useAuthStore();
+  const { auth, logout } = useAuthStore();
   const { theme, toggleTheme } = useTheme();
+  const { signOut } = useClerk();
   return (
     <aside
       className={clsx([`h-screen w-3xs p-4 bg-background`, className])}
@@ -27,7 +29,7 @@ export default function Sidebar({
           Social
         </Link>
         <div className="flex flex-col gap-2 flex-1 overflow-y-auto scrollbar-beauty">
-          {SIDEBAR_ITEMS.map((item) => {
+          {SIDEBAR_ITEMS.filter((item) => item.show).map((item) => {
             const Icon = item.icon;
             return (
               <Link
@@ -63,7 +65,26 @@ export default function Sidebar({
               </>
             )}
           </button>
-          <button className="btn w-full text-15 font-semibold">Post</button>
+          {auth ? (
+            <button
+              onClick={async () => {
+                await signOut();
+                logout();
+              }}
+              className={`flex items-center gap-4 rounded-full px-4 py-2 transition hover:bg-secondary-bg`}
+            >
+              <LogOut className="size-5" />
+              <span>Sign out</span>
+            </button>
+          ) : (
+            <Link
+              href={`/sign-in`}
+              className={`flex items-center gap-4 rounded-full px-4 py-2 transition hover:bg-secondary-bg`}
+            >
+              <LogIn className="size-5" />
+              <span>Signin</span>
+            </Link>
+          )}
         </div>
 
         {auth && (

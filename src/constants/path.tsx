@@ -10,43 +10,53 @@ import {
   User,
   // MoreHorizontal,
 } from "lucide-react";
+import { useAuthStore } from "../stores/auth.store";
 
 export interface SidebarItem {
   label: string;
   href: string;
   icon: any;
+  show?: boolean;
 }
+
+const authRouteProtected = useAuthStore.getState().auth ? true : false;
 
 export const SIDEBAR_ITEMS: SidebarItem[] = [
   {
     label: "Homepage",
     href: "/",
     icon: Home,
+    show: true,
   },
   {
     label: "Explore",
     href: "/explore",
     icon: Search,
+    show: true,
   },
   {
     label: "Notifications",
     href: "/notifications",
     icon: Bell,
+    show: authRouteProtected,
   },
   {
     label: "Messages",
     href: "/messages",
     icon: Mail,
+    show: authRouteProtected,
   },
   {
     label: "Bookmarks",
     href: "/bookmarks",
     icon: Bookmark,
+    show: authRouteProtected,
   },
   {
     label: "Jobs",
     href: "/jobs",
     icon: Briefcase,
+    show: true,
   },
   {
     label: "Communities",
@@ -57,17 +67,14 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     label: "Premium",
     href: "/premium",
     icon: Star,
+    show: true,
   },
   {
     label: "Profile",
-    href: "/profile",
+    href: "/" + useAuthStore.getState().auth?.username,
     icon: User,
+    show: authRouteProtected,
   },
-  // {
-  //   label: "More",
-  //   href: "/more",
-  //   icon: MoreHorizontal,
-  // },
 ];
 
 export const FEED_PATHS = [

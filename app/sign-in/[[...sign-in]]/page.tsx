@@ -2,19 +2,17 @@
 import { FaApple, FaGoogle } from "react-icons/fa";
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
+import Link from "next/link";
 
 export default function SignInPage() {
   return (
-    <div className="h-screen max-w-7xl w-full mx-auto flex items-center justify-center gap-12">
-      <div className="flex-1">
-        <h2 className="text-6xl font-bold text-center">
+    <div className="h-screen max-w-xl w-full mx-auto gap-12 flex flex-col items-center justify-center">
+      <div className="space-y-2 max-w-xs text-center">
+        <h2 className="text-3xl font-bold text-center">
           Social Media Platform
         </h2>
-      </div>
-      <div className="flex-1 space-y-2">
-        <h2 className="text-4xl font-bold">Happening now</h2>
-        <h4 className="text-2xl font-bold">Join today.</h4>
-        <div className="max-w-3xs space-y-2">
+        <h4 className="text-xl font-bold">Happening now. Join today.</h4>
+        <div className="space-y-2">
           <SignIn.Root>
             <Clerk.Connection
               name="google"
@@ -65,6 +63,9 @@ export default function SignInPage() {
             </SignIn.Step> */}
           </SignIn.Root>
         </div>
+        <Link href={`/`} className="text-blue-500">
+          Go to home
+        </Link>
       </div>
     </div>
   );
