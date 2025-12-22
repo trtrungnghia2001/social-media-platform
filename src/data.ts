@@ -18,6 +18,17 @@ export const user: AuthType = {
 export const MOCK_USERS: AuthType[] = [
   {
     id: "u1",
+    name: "Tran Trung Nghia",
+    username: "Tr_TrungNghia",
+    avatarUrl:
+      "https://pbs.twimg.com/profile_images/2001914859773202432/Bsabgg43_400x400.jpg",
+    backgroundUrl:
+      "https://pbs.twimg.com/profile_banners/1504011781420699651/1766128526/1080x360",
+    websiteUrl: "patreon.com/jared999d",
+    bio: `Hi. I am Jared999D!<br/>No commissions.`,
+  },
+  {
+    id: "u2",
     name: "Gemini AI",
     username: "gemini_assistant",
     avatarUrl: "https://i.pravatar.cc/150?u=u1",
@@ -26,7 +37,7 @@ export const MOCK_USERS: AuthType[] = [
     websiteUrl: "https://gemini.google.com",
   },
   {
-    id: "u2",
+    id: "u3",
     name: "Trần Thế Trung",
     username: "trunghandsome",
     avatarUrl: "https://i.pravatar.cc/150?u=u2",
@@ -35,7 +46,7 @@ export const MOCK_USERS: AuthType[] = [
     websiteUrl: "https://github.com/trunghandsome",
   },
   {
-    id: "u3",
+    id: "u4",
     name: "NextJS Vietnam",
     username: "nextjs_vn",
     avatarUrl: "https://i.pravatar.cc/150?u=u3",

@@ -60,8 +60,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-button {
-  cursor: pointer;
+@layer base {
+  button {
+    cursor: pointer;
+  }
+  a {
+    @apply hover:underline!;
+  }
 }
 
 @layer components {

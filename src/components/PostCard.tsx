@@ -1,3 +1,4 @@
+"use client";
 import React, { memo } from "react";
 import { PostType } from "../stores/post.store";
 import Image from "next/image";
@@ -12,24 +13,33 @@ import {
 } from "lucide-react";
 import { IMAGES_DEFAULT } from "../constants/img";
 import { formatTimeAgo } from "../utils/time";
+import { useSocket } from "../contexts/useSocket";
+import OnlineStatus from "./OnlineStatus";
+import Link from "next/link";
 
 const PostCard = ({ post }: { post: PostType }) => {
+  const { onlineUsers } = useSocket();
   return (
     <div className="border-t border-border flex items-start gap-4 p-4 hover:bg-secondary-bg">
-      <div className="relative w-10 aspect-square overflow-hidden rounded-full">
+      <Link href={`/` + post.author.username} className="relative">
         <Image
           src={post.author.avatarUrl || IMAGES_DEFAULT.AVATAR}
           alt="avatar"
-          fill
+          width={40}
+          height={40}
+          className="rounded-full"
           loading="lazy"
         />
-      </div>
+        <OnlineStatus status={onlineUsers.includes(post.author.id)} />
+      </Link>
       {/* main */}
       <div className="flex-1 space-y-2 overflow-hidden">
         {/* author */}
         <div className="flex items-center justify-between gap-4">
           <div className="space-x-2">
-            <span className="font-bold">{post.author.name}</span>
+            <Link href={`/` + post.author.username} className="font-bold">
+              {post.author.name}
+            </Link>
             <span className="text-secondary">
               {formatTimeAgo(post.createdAt)}
             </span>

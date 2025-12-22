@@ -6,9 +6,12 @@ import { IMAGES_DEFAULT } from "../constants/img";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { useSocket } from "../contexts/useSocket";
+import OnlineStatus from "./OnlineStatus";
 
 const ContactCard = ({ contact }: { contact: ContactType }) => {
   const pathname = usePathname();
+  const { onlineUsers } = useSocket();
 
   return (
     <Link
@@ -27,7 +30,7 @@ const ContactCard = ({ contact }: { contact: ContactType }) => {
           height={32}
           className="rounded-full"
         />
-        <span className="inline-block absolute bottom-0 right-0 bg-green-500 rounded-full w-2.5 aspect-square border-2 border-background"></span>
+        <OnlineStatus status={onlineUsers.includes(contact.id)} />
       </div>
       <div className="flex-1">
         <h3 className="font-bold">{contact.name}</h3>

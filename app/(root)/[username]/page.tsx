@@ -1,13 +1,17 @@
 "use client";
 import Feed from "@/src/components/Feed";
 import { IMAGES_DEFAULT } from "@/src/constants/img";
-import { user } from "@/src/data";
+import { MOCK_USERS } from "@/src/data";
 import { ArrowLeft, CalendarDays, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 const UserName = () => {
-  const userDetail = user;
+  const params = useParams();
+  const userDetail = MOCK_USERS.find((u) => u.username === params.username);
+
+  if (!userDetail) return <div>Error</div>;
   return (
     <div>
       {/* top */}
