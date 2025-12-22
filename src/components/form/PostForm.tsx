@@ -80,7 +80,6 @@ const PostForm = () => {
                   onChange={(e) => setFile(e.target.files?.[0] as File)}
                   hidden
                   accept="image/*"
-                  multiple
                 />
                 <button
                   onClick={() => inputFileRef.current?.click()}

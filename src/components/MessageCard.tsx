@@ -8,7 +8,7 @@ const MessageCard = ({ message }: { message: MessageType }) => {
   const { auth } = useAuthStore();
 
   const owner = useMemo(() => {
-    if (auth?._id === message.senderId) return true;
+    if (auth?.id === message.senderId) return true;
     return false;
   }, [message.senderId, auth]);
 

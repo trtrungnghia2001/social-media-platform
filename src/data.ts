@@ -3,7 +3,7 @@ import { ContactType, MessageType } from "./stores/message.store";
 import { PostType } from "./stores/post.store";
 
 export const user: AuthType = {
-  _id: "u1",
+  id: "u1",
   name: "Tran Trung Nghia",
   username: "Tr_TrungNghia",
   avatarUrl:
@@ -17,7 +17,7 @@ export const user: AuthType = {
 // post
 export const MOCK_USERS: AuthType[] = [
   {
-    _id: "u1",
+    id: "u1",
     name: "Gemini AI",
     username: "gemini_assistant",
     avatarUrl: "https://i.pravatar.cc/150?u=u1",
@@ -26,7 +26,7 @@ export const MOCK_USERS: AuthType[] = [
     websiteUrl: "https://gemini.google.com",
   },
   {
-    _id: "u2",
+    id: "u2",
     name: "Trần Thế Trung",
     username: "trunghandsome",
     avatarUrl: "https://i.pravatar.cc/150?u=u2",
@@ -35,7 +35,7 @@ export const MOCK_USERS: AuthType[] = [
     websiteUrl: "https://github.com/trunghandsome",
   },
   {
-    _id: "u3",
+    id: "u3",
     name: "NextJS Vietnam",
     username: "nextjs_vn",
     avatarUrl: "https://i.pravatar.cc/150?u=u3",
@@ -59,8 +59,29 @@ const SAMPLE_CONTEXTS = [
 export const MOCK_POSTS: PostType[] = Array.from({ length: 40 }).map(
   (_, index) => {
     const user = MOCK_USERS[index % MOCK_USERS.length];
-    // 70% bài viết có ảnh
     const hasImage = Math.random() > 0.3;
+
+    // Logic tạo thời gian lùi dần:
+    const now = new Date();
+    let createdAt: string;
+
+    if (index === 0) {
+      // Post đầu tiên: vừa mới đăng xong (10 giây trước)
+      now.setSeconds(now.getSeconds() - 10);
+      createdAt = now.toISOString();
+    } else if (index < 5) {
+      // 5 Post tiếp theo: đăng trong vòng 1 giờ qua (mấy phút trước)
+      now.setMinutes(now.getMinutes() - index * 8);
+      createdAt = now.toISOString();
+    } else if (index < 15) {
+      // Các post tiếp theo: đăng vài giờ trước
+      now.setHours(now.getHours() - (index - 4));
+      createdAt = now.toISOString();
+    } else {
+      // Các post cũ hơn: đăng từ 1 đến vài ngày trước
+      now.setDate(now.getDate() - Math.floor(index / 5));
+      createdAt = now.toISOString();
+    }
 
     return {
       id: `p${index + 1}`,
@@ -72,9 +93,10 @@ export const MOCK_POSTS: PostType[] = Array.from({ length: 40 }).map(
       totalComments: Math.floor(Math.random() * 50),
       totalShares: Math.floor(Math.random() * 20),
       totalFavorites: Math.floor(Math.random() * 300),
-      isShares: Math.random() > 0.8,
+      isShare: Math.random() > 0.8,
       isFavorite: Math.random() > 0.5,
       isBookmark: Math.random() > 0.7,
+      createdAt: createdAt, // Thời gian đã được xử lý đa dạng
     };
   }
 );
@@ -130,7 +152,7 @@ export const MOCK_MESSAGES: MessageType[] = [
 
 export const MOCK_CONTACTS: ContactType[] = Array.from({ length: 40 }).map(
   (_, index) => ({
-    _id: `u${index + 1}`,
+    id: `u${index + 1}`,
     name: `User thứ ${index + 1}`,
     username: `user_name_${index + 1}`,
     avatarUrl: `https://i.pravatar.cc/150?u=${index + 1}`,

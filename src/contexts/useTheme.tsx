@@ -11,7 +11,9 @@ type ThemeContextType = {
 const THEME_KEY = "theme-store";
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+export const ThemeProvider = ({
+  children,
+}: Readonly<{ children: React.ReactNode }>) => {
   const [theme, setTheme] = useState<ThemeType>(() => {
     if (typeof window === "undefined") return "light";
 

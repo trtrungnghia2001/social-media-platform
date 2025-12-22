@@ -11,6 +11,7 @@ import {
   Ellipsis,
 } from "lucide-react";
 import { IMAGES_DEFAULT } from "../constants/img";
+import { formatTimeAgo } from "../utils/time";
 
 const PostCard = ({ post }: { post: PostType }) => {
   return (
@@ -29,8 +30,12 @@ const PostCard = ({ post }: { post: PostType }) => {
         <div className="flex items-center justify-between gap-4">
           <div className="space-x-2">
             <span className="font-bold">{post.author.name}</span>
-            <span className="text-secondary">@{post.author.username}</span>
-            <span className="text-secondary">7m ago</span>
+            <span className="text-secondary">
+              {formatTimeAgo(post.createdAt)}
+            </span>
+            <p>
+              <span className="text-secondary">@{post.author.username}</span>
+            </p>
           </div>
           <button>
             <Ellipsis size={18} />
@@ -59,7 +64,7 @@ const PostCard = ({ post }: { post: PostType }) => {
           <button className="flex items-center gap-1">
             <Repeat
               size={18}
-              className={post.isShares ? `text-green-500` : ``}
+              className={post.isShare ? `text-green-500` : ``}
             />
             {post.totalShares}
           </button>

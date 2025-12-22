@@ -1,11 +1,23 @@
+"use client";
 import { memo } from "react";
 import { ContactType } from "../stores/message.store";
 import Image from "next/image";
 import { IMAGES_DEFAULT } from "../constants/img";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
 const ContactCard = ({ contact }: { contact: ContactType }) => {
+  const pathname = usePathname();
+
   return (
-    <div className="flex items-center gap-4 p-2 hover:bg-secondary-bg rounded-lg">
+    <Link
+      href={`/messages/` + contact.id}
+      className={clsx([
+        `flex items-center gap-4 p-2 hover:bg-secondary-bg rounded-lg`,
+        pathname.split("/")[2] === contact.id && `bg-secondary-bg`,
+      ])}
+    >
       <div className="relative">
         <Image
           alt="avatar"
@@ -23,7 +35,7 @@ const ContactCard = ({ contact }: { contact: ContactType }) => {
           {contact.lastMessage?.content}
         </p>
       </div>
-    </div>
+    </Link>
   );
 };
 

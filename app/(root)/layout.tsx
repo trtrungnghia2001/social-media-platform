@@ -8,16 +8,14 @@ import React from "react";
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   return (
-    <div>
+    <>
       <div className="max-w-7xl w-full mx-auto flex items-start mb-16 sm:mb-0">
-        <Sidebar />
-        <main className="flex-1 lg:mr-8 border-x border-border">
-          {children}
-        </main>
+        <Sidebar className="hidden sm:block sticky top-0" />
+        <main className="flex-1 border-x border-border">{children}</main>
         {!pathname.includes(`messages`) && <SidebarRight />}
       </div>
       <MobileNav />
-    </div>
+    </>
   );
 };
 

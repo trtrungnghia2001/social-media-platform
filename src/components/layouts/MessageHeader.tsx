@@ -1,5 +1,7 @@
+"use client";
 import { IMAGES_DEFAULT } from "@/src/constants/img";
 import { useAuthStore } from "@/src/stores/auth.store";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 
 const MessageHeader = () => {
@@ -7,6 +9,14 @@ const MessageHeader = () => {
   return (
     <div className="p-4 border-b border-b-border">
       <div className="flex items-center gap-2">
+        <button
+          onClick={() => {
+            history.back();
+          }}
+          className="rounded-full overflow-hidden bg-secondary-bg p-2 lg:hidden"
+        >
+          <ArrowLeft size={18} />
+        </button>
         <Image
           alt="avatar"
           src={currentUser?.avatarUrl || IMAGES_DEFAULT.AVATAR}

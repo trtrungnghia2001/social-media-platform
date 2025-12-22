@@ -9,9 +9,10 @@ export type PostType = {
   totalComments: number;
   totalShares: number;
   totalFavorites: number;
-  isShares: boolean;
+  isShare: boolean;
   isFavorite: boolean;
   isBookmark: boolean;
+  createdAt: string;
 };
 
 type PostStoreType = {
