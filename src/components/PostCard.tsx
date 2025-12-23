@@ -1,24 +1,18 @@
 "use client";
-import React, { memo } from "react";
+import { memo } from "react";
 import { PostType } from "../stores/post.store";
 import Image from "next/image";
-import {
-  MessageCircle,
-  Repeat,
-  Heart,
-  BarChart2,
-  Bookmark,
-  Share,
-  Ellipsis,
-} from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { IMAGES_DEFAULT } from "../constants/img";
 import { formatTimeAgo } from "../utils/time";
 import { useSocket } from "../contexts/useSocket";
 import OnlineStatus from "./OnlineStatus";
 import Link from "next/link";
+import PostCardFooter from "./PostCardFooter";
 
 const PostCard = ({ post }: { post: PostType }) => {
   const { onlineUsers } = useSocket();
+
   return (
     <div className="border-t border-border flex items-start gap-4 p-4 hover:bg-secondary-bg">
       <Link href={`/` + post.author.username} className="relative">
@@ -51,8 +45,11 @@ const PostCard = ({ post }: { post: PostType }) => {
             <Ellipsis size={18} />
           </button>
         </div>
-        {post.context && (
-          <div dangerouslySetInnerHTML={{ __html: post.context }}></div>
+        {post.content && (
+          <div
+            className="whitespace-break-spaces"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          ></div>
         )}
         {post.mediaUrl && (
           <Image
@@ -66,40 +63,7 @@ const PostCard = ({ post }: { post: PostType }) => {
           />
         )}
         {/* action */}
-        <div className="text-secondary flex justify-between gap-4">
-          <button className="flex items-center gap-1">
-            <MessageCircle size={18} />
-            {post.totalComments}
-          </button>
-          <button className="flex items-center gap-1">
-            <Repeat
-              size={18}
-              className={post.isShare ? `text-green-500` : ``}
-            />
-            {post.totalShares}
-          </button>
-          <button className="flex items-center gap-1">
-            <Heart
-              size={18}
-              className={post.isFavorite ? `text-pink-500` : ``}
-            />
-            {post.totalFavorites}
-          </button>
-          <button>
-            <BarChart2 size={18} />
-          </button>
-          <div className="space-x-1">
-            <button>
-              <Bookmark
-                size={18}
-                className={post.isFavorite ? `text-blue-500` : ``}
-              />
-            </button>
-            <button>
-              <Share size={18} />
-            </button>
-          </div>
-        </div>
+        <PostCardFooter post={post} />
       </div>
     </div>
   );

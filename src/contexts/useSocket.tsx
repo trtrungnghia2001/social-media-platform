@@ -1,11 +1,24 @@
-import { createContext, useContext, useState } from "react";
-import { AuthType } from "../stores/auth.store";
+"use client";
+
+import { io } from "socket.io-client";
+
+const socket = io({
+  autoConnect: false,
+});
+
+import { createContext, useContext, useEffect, useState } from "react";
+import { AuthType, useAuthStore } from "../stores/auth.store";
+import { InteractionType } from "@/app/generated/prisma";
 
 type SocketContextType = {
-  handleShare: () => void;
-  handleFavorite: () => void;
-  handleBookmark: () => void;
+  handlePostActive: (data: {
+    postId: string;
+    userId: string;
+    type: InteractionType;
+  }) => void;
   handleMessage: () => void;
+  notifications: number;
+  setNotifications: (notifications: number) => void;
   currentUser: AuthType | null;
   onlineUsers: string[];
 };
@@ -15,26 +28,59 @@ const SocketContext = createContext<SocketContextType | null>(null);
 export const SocketProvider = ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
-  const handleShare = () => {};
-  const handleFavorite = () => {};
-  const handleBookmark = () => {};
-  const handleMessage = () => {};
   const [currentUser, setCurrentUser] = useState<AuthType | null>(null);
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([
-    "u1",
-    "u3",
-    "u4",
-    "u7",
-    "u9",
-  ]);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [notifications, setNotifications] = useState<number>(0);
+
+  const handlePostActive = (data: {
+    postId: string;
+    userId: string;
+    type: InteractionType;
+  }) => {
+    socket.emit("post-active", data);
+  };
+  const handleMessage = () => {};
+
+  // connect
+  const { auth } = useAuthStore();
+  useEffect(() => {
+    if (auth?.id) {
+      socket.auth = { authId: auth.id };
+      socket.connect();
+    } else {
+      socket.disconnect();
+    }
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [auth?.id]);
+
+  // event
+  useEffect(() => {
+    const handleOnlineUsers = (users: string[]) => {
+      setOnlineUsers(users);
+    };
+    socket.on("onlineUsers", handleOnlineUsers);
+
+    const handlePostActive = () => {
+      setNotifications((prev) => prev + 1);
+    };
+    socket.on("post-active", handlePostActive);
+
+    return () => {
+      socket.off("onlineUsers", handleOnlineUsers);
+      socket.off("post-active", handlePostActive);
+    };
+  }, []);
 
   return (
     <SocketContext.Provider
       value={{
-        handleShare,
-        handleFavorite,
-        handleBookmark,
         handleMessage,
+        handlePostActive,
+        notifications,
+        setNotifications,
         currentUser,
         onlineUsers,
       }}

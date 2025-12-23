@@ -65,7 +65,7 @@ body {
     cursor: pointer;
   }
   a {
-    @apply hover:underline!;
+    /* @apply hover:underline!; */
   }
 }
 

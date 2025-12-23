@@ -15,6 +15,10 @@ import {
 import Link from "next/link";
 import { IMAGES_DEFAULT } from "@/src/constants/img";
 import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { createPost } from "@/lib/post";
+import { usePostStore } from "@/src/stores/post.store";
+import { uploadToCloudinary } from "@/src/utils/upload";
 
 const PostForm = () => {
   // files
@@ -42,14 +46,29 @@ const PostForm = () => {
     mutate();
   };
 
+  const { auth } = useAuthStore();
+  const { create } = usePostStore();
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
-      console.log({ content, file });
+      if (auth) {
+        let mediaUrl = "";
+        if (file) {
+          mediaUrl = await uploadToCloudinary(file);
+        }
+        await create({
+          authorId: auth.id,
+          content: content,
+          mediaUrl: mediaUrl,
+        });
+        setContent("");
+        setFile(null);
+      }
     },
+    onSuccess: () => toast.success("Created post successfully!"),
+    onError: (err) => toast.error(err.message),
   });
 
-  const { auth } = useAuthStore();
-  if (!auth) return;
+  if (!auth) return null;
   return (
     <div>
       <div className="flex items-start gap-4 p-4">

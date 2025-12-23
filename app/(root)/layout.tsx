@@ -4,6 +4,7 @@ import Sidebar from "@/src/components/layouts/Sidebar";
 import SidebarRight from "@/src/components/layouts/SidebarRight";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { Toaster } from "react-hot-toast";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -15,6 +16,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {!pathname.includes(`messages`) && <SidebarRight />}
       </div>
       <MobileNav />
+      <Toaster />
     </>
   );
 };

@@ -1,17 +1,30 @@
 "use client";
+import { getUser } from "@/lib/user";
 import Feed from "@/src/components/Feed";
 import { IMAGES_DEFAULT } from "@/src/constants/img";
-import { MOCK_USERS } from "@/src/data";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarDays, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 
 const UserName = () => {
   const params = useParams();
-  const userDetail = MOCK_USERS.find((u) => u.username === params.username);
+  const username = params.username as string;
+  const { data, isLoading } = useQuery({
+    queryKey: ["user", username],
+    queryFn: async () => await getUser(username),
+    enabled: !!username,
+  });
 
+  const userDetail = useMemo(() => {
+    return data?.user || null;
+  }, [data]);
+
+  if (isLoading) return <div>Loading...</div>;
   if (!userDetail) return <div>Error</div>;
+
   return (
     <div>
       {/* top */}
@@ -26,7 +39,7 @@ const UserName = () => {
         </button>
         <div>
           <h3 className="font-bold text-xl">Trần Trung Nghĩa</h3>
-          <p className="text-13 text-secondary">1 post</p>
+          <p className="text-13 text-secondary">{data?.postTotals} post</p>
         </div>
       </div>
       <div className="bg-secondary-bg relative mb-16 w-full h-52">
@@ -90,7 +103,7 @@ const UserName = () => {
         </div>
       </div>
       {/* feed */}
-      <Feed />
+      <Feed username={username} />
     </div>
   );
 };

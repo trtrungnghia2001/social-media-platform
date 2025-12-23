@@ -1,6 +1,7 @@
 "use client";
 import { IMAGES_DEFAULT } from "@/src/constants/img";
 import { SIDEBAR_ITEMS } from "@/src/constants/path";
+import { useSocket } from "@/src/contexts/useSocket";
 import { useTheme } from "@/src/contexts/useTheme";
 import { useAuthStore } from "@/src/stores/auth.store";
 import { useClerk } from "@clerk/nextjs";
@@ -9,16 +10,26 @@ import { LogIn, LogOut, Moon, Sun } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ComponentProps } from "react";
+import { ComponentProps, useMemo } from "react";
 
 export default function Sidebar({
   className,
   ...props
 }: ComponentProps<"aside">) {
   const pathname = usePathname();
+  const { notifications } = useSocket();
   const { auth, logout } = useAuthStore();
   const { theme, toggleTheme } = useTheme();
   const { signOut } = useClerk();
+
+  const renderItems = useMemo(() => {
+    return SIDEBAR_ITEMS.map((item) =>
+      auth ? { ...item, show: true } : item
+    ).filter((item) => item.show);
+  }, [auth]);
+
+  const socketPathnameMatch = [`/notifications`, `/messages`];
+
   return (
     <aside
       className={clsx([`h-screen w-3xs p-4 bg-background`, className])}
@@ -29,7 +40,7 @@ export default function Sidebar({
           Social
         </Link>
         <div className="flex flex-col gap-2 flex-1 overflow-y-auto scrollbar-beauty">
-          {SIDEBAR_ITEMS.filter((item) => item.show).map((item) => {
+          {renderItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link
@@ -44,6 +55,13 @@ export default function Sidebar({
               >
                 <Icon className="size-5" />
                 <span>{item.label}</span>
+                {socketPathnameMatch.includes(item.href) &&
+                  item.href === "/notifications" &&
+                  notifications > 0 && (
+                    <span className="bg-red-500 text-white rounded-full text-xs w-5 aspect-square flex items-center justify-center leading-none">
+                      {notifications}
+                    </span>
+                  )}
               </Link>
             );
           })}

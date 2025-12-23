@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js" // Lưu ý: để là prisma-client-js để tránh lỗi thư viện
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String  @id @default(uuid()) // Cần ID làm Primary Key
+  clerkId       String  @unique
+  name          String
+  username      String  @unique
+  avatarUrl     String? @db.Text
+  backgroundUrl String? @db.Text
+  bio           String? @db.Text
+  websiteUrl    String? @db.Text
+
+  // Relationships
+  posts                Post[]
+  interactions         Interaction[]
+  notifications        Notification[] @relation("NotificationRecipient")
+  createdNotifications Notification[] @relation("NotificationIssuer")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([username])
+}
+
+model Post {
+  id       String  @id @default(uuid())
+  content  String? @db.Text
+  mediaUrl String? @db.Text
+
+  // Tác giả
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  interactions  Interaction[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+}
+
+enum InteractionType {
+  FAVORITE
+  BOOKMARK
+  SHARE
+}
+
+model Interaction {
+  id     String          @id @default(uuid())
+  userId String
+  postId String
+  type   InteractionType
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId, type]) // Một user chỉ có thể Favorite/Bookmark 1 bài viết 1 lần
+  @@index([postId])
+  @@index([userId])
+}
+
+enum NotificationType {
+  FAVORITE
+  BOOKMARK
+  SHARE
+  COMMENT
+  FOLLOW
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  recipientId String // Người nhận (Chủ bài viết)
+  issuerId    String // Người tạo ra hành động (Người like/bookmark)
+  postId      String? // Có thể null nếu là thông báo Follow
+  type        NotificationType
+  isRead      Boolean          @default(false)
+
+  // Relationships
+  recipient User  @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  issuer    User  @relation("NotificationIssuer", fields: [issuerId], references: [id], onDelete: Cascade)
+  post      Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([recipientId])
+  @@index([isRead])
+}

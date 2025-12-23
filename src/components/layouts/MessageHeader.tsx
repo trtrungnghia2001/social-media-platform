@@ -1,11 +1,14 @@
 "use client";
 import { IMAGES_DEFAULT } from "@/src/constants/img";
-import { useAuthStore } from "@/src/stores/auth.store";
+import { MOCK_CONTACTS } from "@/src/data";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 
 const MessageHeader = () => {
-  const currentUser = useAuthStore.getState().auth;
+  const params = useParams();
+  const username = params.username;
+  const currentUser = MOCK_CONTACTS.find((c) => c.id === username);
   return (
     <div className="p-4 border-b border-b-border">
       <div className="flex items-center gap-2">

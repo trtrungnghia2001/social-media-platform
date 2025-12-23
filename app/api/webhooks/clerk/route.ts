@@ -1,6 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   // 1. Lấy Signing Secret từ Env
@@ -47,28 +48,45 @@ export async function POST(req: Request) {
     });
   }
 
-  // 5. Xử lý logic dựa trên loại sự kiện (Event Type)
   const eventType = evt.type;
 
   if (eventType === "user.created") {
-    const { id, email_addresses, image_url, first_name, last_name, username } =
+    const { id, image_url, first_name, last_name, username, email_addresses } =
       evt.data;
+    console.log({
+      id,
+      image_url,
+      first_name,
+      last_name,
+      username,
+      email_addresses,
+    });
 
-    // LOGIC CỦA BẠN: Lưu vào database ở đây
-    // Ví dụ dùng Prisma:
-    /*
-    await db.user.create({
-      data: {
-        clerkId: id,
-        email: email_addresses[0].email_address,
-        name: `${first_name} ${last_name}`,
-        avatarUrl: image_url,
-        username: username || `user_${id.substring(0, 8)}`,
-      }
-    })
-    */
+    const firstName = first_name || "";
+    const lastName = last_name || "";
+    const fullName =
+      (firstName + " " + lastName).trim() ||
+      username ||
+      email_addresses?.[0]?.email_address?.split("@")[0] ||
+      `User_${id.substring(0, 5)}`;
 
-    console.log(`Webhook: User ${id} đã được lưu vào DB`);
+    const finalUsername = username || `user_${id.substring(0, 8)}`;
+
+    try {
+      await prisma.user.create({
+        data: {
+          clerkId: id,
+          name: fullName,
+          avatarUrl: image_url || "", // Đảm bảo không null
+          username: finalUsername,
+        },
+      });
+      console.log(`✅ Webhook: User ${id} đã được lưu vào DB thành công`);
+    } catch (dbError) {
+      console.error("❌ Lỗi khi lưu User vào DB từ Webhook:", dbError);
+      // Bạn nên trả về 500 ở đây để Clerk biết và gửi lại Webhook sau (Retry)
+      return new Response("Error saving user to database", { status: 500 });
+    }
   }
 
   return new Response("", { status: 200 });

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./useTheme";
 import { memo } from "react";
 import { SocketProvider } from "./useSocket";
+import { AuthProvider } from "./AuthProvider";
 
 export const queryClient = new QueryClient();
 
@@ -14,13 +15,13 @@ const Provider = ({
 }>) => {
   return (
     <ClerkProvider>
-      <SocketProvider>
-        <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </ThemeProvider>
-      </SocketProvider>
+      <QueryClientProvider client={queryClient}>
+        <SocketProvider>
+          <ThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
+        </SocketProvider>
+      </QueryClientProvider>
     </ClerkProvider>
   );
 };

@@ -19,8 +19,6 @@ export interface SidebarItem {
   show?: boolean;
 }
 
-const authRouteProtected = useAuthStore.getState().auth ? true : false;
-
 export const SIDEBAR_ITEMS: SidebarItem[] = [
   {
     label: "Homepage",
@@ -38,19 +36,19 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     label: "Notifications",
     href: "/notifications",
     icon: Bell,
-    show: authRouteProtected,
+    show: false,
   },
   {
     label: "Messages",
     href: "/messages",
     icon: Mail,
-    show: authRouteProtected,
+    show: false,
   },
   {
     label: "Bookmarks",
     href: "/bookmarks",
     icon: Bookmark,
-    show: authRouteProtected,
+    show: false,
   },
   {
     label: "Jobs",
@@ -73,7 +71,7 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     label: "Profile",
     href: "/" + useAuthStore.getState().auth?.username,
     icon: User,
-    show: authRouteProtected,
+    show: false,
   },
 ];
 

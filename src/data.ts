@@ -97,7 +97,7 @@ export const MOCK_POSTS: PostType[] = Array.from({ length: 40 }).map(
     return {
       id: `p${index + 1}`,
       author: user,
-      context:
+      content:
         SAMPLE_CONTEXTS[index % SAMPLE_CONTEXTS.length] +
         ` (Post #${index + 1})`,
       mediaUrl: hasImage ? `https://picsum.photos/seed/${index}/800/600` : "",
@@ -160,7 +160,6 @@ export const MOCK_MESSAGES: MessageType[] = [
 );
 
 // contact
-
 export const MOCK_CONTACTS: ContactType[] = Array.from({ length: 40 }).map(
   (_, index) => ({
     id: `u${index + 1}`,
