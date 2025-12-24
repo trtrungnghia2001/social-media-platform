@@ -1,3 +1,4 @@
+"use server";
 import { AuthType } from "@/src/stores/auth.store";
 import prisma from "./prisma";
 

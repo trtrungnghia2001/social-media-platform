@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import prisma from "./prisma";
 import { InteractionType, NotificationType } from "@/app/generated/prisma";
 
-export const getPosts = async ({
+export const getPostsInfinity = async ({
   currentUserId,
   cursor,
   limit = 10,

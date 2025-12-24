@@ -19,5 +19,5 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
   }
 
   const data = await response.json();
-  return data.secure_url; // Trả về URL ảnh sau khi upload thành công
+  return data.secure_url;
 };

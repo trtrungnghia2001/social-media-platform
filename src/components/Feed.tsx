@@ -2,7 +2,7 @@
 import { memo, useMemo } from "react";
 import PostCard from "./PostCard";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getPosts } from "@/lib/post";
+import { getPostsInfinity } from "@/lib/post";
 import { PostType, usePostStore } from "../stores/post.store";
 import { useAuthStore } from "../stores/auth.store";
 
@@ -13,7 +13,7 @@ const Feed = ({ username }: { username?: string }) => {
     useInfiniteQuery({
       queryKey: ["posts", auth?.id],
       queryFn: async () =>
-        await getPosts({
+        await getPostsInfinity({
           currentUserId: auth?.id,
           where: username
             ? {

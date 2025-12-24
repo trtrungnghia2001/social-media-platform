@@ -1,13 +1,15 @@
 "use client";
 import { getUser } from "@/lib/user";
 import Feed from "@/src/components/Feed";
+import ProfileForm from "@/src/components/form/ProfileForm";
 import { IMAGES_DEFAULT } from "@/src/constants/img";
+import { useAuthStore } from "@/src/stores/auth.store";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarDays, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const UserName = () => {
   const params = useParams();
@@ -17,6 +19,8 @@ const UserName = () => {
     queryFn: async () => await getUser(username),
     enabled: !!username,
   });
+  const { auth } = useAuthStore();
+  const [openEditForm, setOpenEditForm] = useState(false);
 
   const userDetail = useMemo(() => {
     return data?.user || null;
@@ -27,6 +31,9 @@ const UserName = () => {
 
   return (
     <div>
+      {openEditForm && (
+        <ProfileForm open={openEditForm} setOpen={setOpenEditForm} />
+      )}
       {/* top */}
       <div className="px-4 py-2 z-10 flex items-center gap-4 sticky top-0 bg-background/80 backdrop-blur">
         <button
@@ -59,10 +66,17 @@ const UserName = () => {
               width={128}
               height={128}
               sizes="100vw"
-              className="rounded-full object-cover object-center"
+              className="rounded-full object-center object-cover overflow-hidden aspect-square"
             />
           </div>
-          <button className="mt-16 btn font-bold">Edit profile</button>
+          {auth?.username === username && (
+            <button
+              onClick={() => setOpenEditForm(true)}
+              className="mt-16 btn font-bold"
+            >
+              Edit profile
+            </button>
+          )}
         </div>
       </div>
       {/* info */}

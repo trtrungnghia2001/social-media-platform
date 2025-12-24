@@ -107,13 +107,14 @@ export default function Sidebar({
 
         {auth && (
           <div className="flex items-center gap-2">
-            <div className="w-10 aspect-square relative rounded-full overflow-hidden">
-              <Image
-                src={auth.avatarUrl || IMAGES_DEFAULT.AVATAR}
-                alt="avatar"
-                fill
-              />
-            </div>
+            <Image
+              src={auth.avatarUrl || IMAGES_DEFAULT.AVATAR}
+              alt="avatar"
+              loading="lazy"
+              width={40}
+              height={40}
+              className="rounded-full object-center object-cover overflow-hidden aspect-square"
+            />
             <div>
               <h4 className="font-bold">{auth.name}</h4>
               <p className="text-secondary">@{auth.username}</p>

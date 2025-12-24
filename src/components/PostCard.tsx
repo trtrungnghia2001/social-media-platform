@@ -21,7 +21,7 @@ const PostCard = ({ post }: { post: PostType }) => {
           alt="avatar"
           width={40}
           height={40}
-          className="rounded-full"
+          className="rounded-full object-center object-cover overflow-hidden aspect-square"
           loading="lazy"
         />
         <OnlineStatus status={onlineUsers.includes(post.author.id)} />

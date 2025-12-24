@@ -14,7 +14,7 @@ const NotificationPage = () => {
   const { setNotifications, notifications } = useSocket();
   const { auth } = useAuthStore();
   const { data, isLoading, error } = useQuery({
-    queryKey: ["notifications"],
+    queryKey: ["notifications", auth?.id],
     queryFn: async () =>
       await getNotifications({ currentUserId: auth?.id as string }),
     enabled: !!auth,
@@ -57,7 +57,7 @@ const NotificationPage = () => {
   });
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return error.message;
+  if (error?.message) return <div>{error.message}</div>;
 
   return (
     <div className="p-4">
@@ -75,9 +75,9 @@ const NotificationPage = () => {
               alt={noti.issuer.name}
               src={noti.issuer.avatarUrl || IMAGES_DEFAULT.AVATAR}
               loading="lazy"
-              width={45}
-              height={45}
-              className="rounded-full object-cover"
+              width={40}
+              height={40}
+              className="rounded-full object-cover object-center aspect-square overflow-hidden"
             />
             <div className="flex flex-col flex-1">
               <p className="text-sm leading-tight">

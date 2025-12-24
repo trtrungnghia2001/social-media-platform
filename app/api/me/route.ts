@@ -13,6 +13,12 @@ export async function GET(): Promise<NextResponse> {
     }
 
     const clerkId: string = user.id;
+    const existingUser = await prisma.user.findUnique({ where: { clerkId } });
+
+    if (existingUser) {
+      return NextResponse.json(existingUser);
+    }
+
     const name: string =
       [user.firstName, user.lastName].filter(Boolean).join(" ") ||
       user.username ||

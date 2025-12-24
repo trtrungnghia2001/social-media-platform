@@ -79,7 +79,7 @@ const PostForm = () => {
             loading="lazy"
             width={40}
             height={40}
-            className="object-center object-cover rounded-full"
+            className="rounded-full object-center object-cover overflow-hidden aspect-square"
           />
         </Link>
         <div className="flex-1 overflow-hidden">
