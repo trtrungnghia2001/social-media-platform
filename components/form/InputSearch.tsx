@@ -6,7 +6,7 @@ const InputSearch = ({ ...props }: ComponentProps<"input">) => {
     <div>
       {/* input */}
       <div
-        className="flex items-center border border-border rounded-full pl-4"
+        className="flex items-center border border-border rounded-full pl-3"
         {...props}
       >
         <Search size={16} />

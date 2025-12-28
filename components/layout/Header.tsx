@@ -62,7 +62,7 @@ const Header = () => {
               className={clsx(
                 `p-4 block w-full font-bold text-center hover:bg-secondaryBg relative`,
                 pathname === tab.path
-                  ? `after:absolute after:left-0 after:right-0 after:bottom-0 after:border-b after:border-b-blue-500 after:h-0.5`
+                  ? `after:absolute after:left-0 after:right-0 after:bottom-0 after:bg-blue-500 after:h-0.5`
                   : `text-secondary`
               )}
             >

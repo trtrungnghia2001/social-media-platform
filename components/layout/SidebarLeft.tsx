@@ -147,21 +147,23 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
             </button>
           </li>
         </ul>
-        <div className="flex items-center gap-4 p-4">
-          <Image
-            alt="avatar"
-            src={user?.imageUrl || IMAGE_DEFAULT.AVATAR}
-            width={40}
-            height={40}
-            unoptimized
-            loading="lazy"
-            className="img rounded-full overflow-hidden"
-          />
-          <div>
-            <h3 className="font-bold leading-none">{user?.fullName}</h3>
-            <p className="text-13 text-secondary">@{user?.username}</p>
+        {user && (
+          <div className="flex items-center gap-4 p-4">
+            <Image
+              alt="avatar"
+              src={user?.imageUrl || IMAGE_DEFAULT.AVATAR}
+              width={40}
+              height={40}
+              unoptimized
+              loading="lazy"
+              className="img rounded-full overflow-hidden"
+            />
+            <div>
+              <h3 className="font-bold leading-none">{user?.fullName}</h3>
+              <p className="text-13 text-secondary">@{user?.username}</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </aside>
   );
