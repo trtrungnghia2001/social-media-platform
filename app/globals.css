@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Mode - Sạch sẽ, hiện đại */
+  --background: #ffffff;
+  --foreground: #0f172a; /* Slate 900 */
+  --secondary: #64748b; /* Slate 500 */
+  --secondaryBg: #f1f5f9; /* Slate 100 */
+  --border: #e2e8f0; /* Slate 200 */
+  --accent: #0ea5e9; /* Sky 500 */
+}
+
+[data-theme="dark"] {
+  /* Dark Mode - Deep Midnight (Giống X/Threads) */
+  --background: #020617; /* Slate 950 - Nền sâu nhất */
+  --foreground: #f8fafc; /* Slate 50 - Chữ trắng sáng */
+  --secondary: #94a3b8; /* Slate 400 - Chữ phụ/Bio */
+  --secondaryBg: #1e293b; /* Slate 800 - Nền của Post/Card */
+  --border: #334155; /* Slate 700 - Viền mảnh */
+  --accent: #38bdf8; /* Sky 400 - Màu nhấn chính */
+}
+
+/* Ưu tiên chế độ hệ thống nếu chưa có data-theme */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #020617;
+    --foreground: #f8fafc;
+    --secondary: #94a3b8;
+    --secondaryBg: #1e293b;
+    --border: #334155;
+    --accent: #38bdf8;
+  }
+}
+
+@theme inline {
+  /* Đăng ký biến CSS vào hệ thống Tailwind v4 */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-secondary: var(--secondary);
+  --color-secondaryBg: var(--secondaryBg);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+
+  /* Cấu hình Font Geist từ Next.js */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Định nghĩa size chữ tùy chỉnh */
+  --text-13: 13px;
+  --text-15: 15px;
+
+  /*  */
+  --z-index-100: 100;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  transition: background 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  button {
+    cursor: pointer;
+  }
+  a {
+    /* @apply hover:underline!; */
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold leading-none;
+  }
+
+  h2 {
+    @apply text-xl;
+  }
+  h3 {
+    @apply text-15;
+  }
+}
+
+@layer components {
+  /* Nút bấm mặc định */
+  .btn {
+    @apply text-13 font-bold rounded-full transition-all active:scale-95 py-2 px-4 flex items-center justify-center gap-2;
+    @apply bg-slate-900 text-white hover:bg-slate-800;
+  }
+  .dark .btn {
+    @apply bg-slate-100 text-slate-950 hover:bg-white;
+  }
+  .btn:disabled {
+    @apply !cursor-not-allowed opacity-50 active:scale-100;
+  }
+  .btn-options {
+    @apply p-1 rounded-full hover:bg-blue-100 hover:text-blue-500 transition-all;
+  }
+
+  /* input */
+  .input {
+    @apply w-full px-4 py-2 border border-border rounded-lg outline-none;
+  }
+
+  /* Thanh cuộn thẩm mỹ (Custom Scrollbar) */
+  .scrollbar-beauty {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  /* Tối ưu thanh cuộn cho Webkit (Chrome, Safari, Edge) */
+  .scrollbar-beauty::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-beauty::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-beauty::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+  }
+  .scrollbar-beauty::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+  }
+
+  .img {
+    @apply object-center object-cover;
+  }
+}
+
+/* Khử răng cưa cho icon và text trong dark mode */
+.dark {
+  color-scheme: dark;
+}
