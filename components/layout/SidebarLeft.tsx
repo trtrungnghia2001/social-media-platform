@@ -18,7 +18,7 @@ import {
   Brain,
   LogIn,
 } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { IMAGE_DEFAULT } from "@/helpers/constants";
 import { useThemeContext } from "@/contexts/ThemeContext";
@@ -81,6 +81,7 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
   const { theme, toggleTheme } = useThemeContext();
   const pathname = usePathname();
   const { user, isSignedIn } = useUser();
+  const { signOut } = useClerk();
 
   return (
     <aside
@@ -129,22 +130,24 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
             </button>
           </li>
           <li>
-            <button
-              // onClick={toggleTheme}
-              className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
-            >
-              {isSignedIn ? (
-                <>
-                  <LogOut size={18} />
-                  Sign out
-                </>
-              ) : (
-                <>
-                  <LogIn size={18} />
-                  Sign in
-                </>
-              )}
-            </button>
+            {isSignedIn && (
+              <button
+                onClick={() => signOut()}
+                className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
+              >
+                <LogOut size={18} />
+                Sign out
+              </button>
+            )}
+            {!isSignedIn && (
+              <Link
+                href={`/sign-in`}
+                className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
+              >
+                <LogIn size={18} />
+                Sign in
+              </Link>
+            )}
           </li>
         </ul>
         {user && (

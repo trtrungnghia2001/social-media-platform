@@ -24,10 +24,7 @@ const SocketContext = createContext<SocketContextType | null>(null);
 export const SocketProvider = ({
   children,
 }: Readonly<{ children: ReactNode }>) => {
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([
-    `user_1`,
-    `user_3`,
-  ]);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   const { user, isSignedIn } = useUser();
   useEffect(() => {
@@ -38,6 +35,18 @@ export const SocketProvider = ({
       socket.connect();
     }
   }, [isSignedIn, user]);
+
+  useEffect(() => {
+    const handleOnlineUsers = (value: string[]) => {
+      setOnlineUsers(value);
+    };
+
+    socket.on("getOnlineUsers", handleOnlineUsers);
+    return () => {
+      socket.off("getOnlineUsers", handleOnlineUsers);
+    };
+  }, []);
+  console.log({ onlineUsers });
 
   return (
     <SocketContext.Provider value={{ onlineUsers }}>
