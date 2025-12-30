@@ -29,6 +29,8 @@ model User {
 
     followings Follow[] @relation("Following")
     followers  Follow[] @relation("Follower")
+
+    comments Comment[]
 }
 
 // post
@@ -47,6 +49,8 @@ model Post {
     bookmarks Bookmark[]
 
     notifications Notification[]
+
+    comments Comment[]
 }
 
 model Like {
@@ -85,6 +89,22 @@ model Follow {
     createdAt DateTime @default(now())
 
     @@id([followerId, followingId])
+}
+
+model Comment {
+    id        String   @id @default(cuid())
+    text      String?
+    mediaUrl  String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    authorId String
+    author   User    @relation(fields: [authorId], references: [id])
+    postId   String?
+    post     Post?   @relation(fields: [postId], references: [id])
+
+    // parentCommentId String?
+    // parentComment Comment? @relation("",fields: [parentCommentId], references: [id])
 }
 
 enum NotificationType {

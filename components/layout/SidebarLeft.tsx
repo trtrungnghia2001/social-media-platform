@@ -31,61 +31,63 @@ export type NavItemType = {
   path: string;
   icon: LucideIcon;
   requiresAuth?: boolean;
+  count?: number;
 };
 
-export const navItems: NavItemType[] = [
-  {
-    title: "Home",
-    path: "/",
-    icon: Home,
-  },
-  {
-    title: "Explore",
-    path: "/explore",
-    icon: Search,
-  },
-  {
-    title: "Notifications",
-    path: "/notifications",
-    icon: Bell,
-    requiresAuth: true,
-  },
-  {
-    title: "Messages",
-    path: "/messages",
-    icon: MessageCircle,
-    requiresAuth: true,
-  },
-  {
-    title: "Grok",
-    path: "/grok",
-    icon: Brain,
-  },
-  {
-    title: "Communities",
-    path: "/communities",
-    icon: Users,
-  },
-  {
-    title: "Profile",
-    path: "/profile",
-    icon: User,
-    requiresAuth: true,
-  },
-  {
-    title: "More",
-    path: "/more",
-    icon: Ellipsis,
-  },
-];
-
 const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
+  const { counts } = useSocketContext();
   const { theme, toggleTheme } = useThemeContext();
   const pathname = usePathname();
   const { auth } = useAuthContext();
   const { signOut } = useClerk();
 
-  const { counts } = useSocketContext();
+  const navItems: NavItemType[] = [
+    {
+      title: "Home",
+      path: "/",
+      icon: Home,
+    },
+    {
+      title: "Explore",
+      path: "/explore",
+      icon: Search,
+    },
+    {
+      title: "Notifications",
+      path: "/notifications",
+      icon: Bell,
+      requiresAuth: true,
+      count: counts.unreadNotifications,
+    },
+    {
+      title: "Messages",
+      path: "/messages",
+      icon: MessageCircle,
+      requiresAuth: true,
+    },
+    {
+      title: "Grok",
+      path: "/grok",
+      icon: Brain,
+    },
+    {
+      title: "Communities",
+      path: "/communities",
+      icon: Users,
+    },
+    {
+      title: "Profile",
+      path: "/user/" + auth?.username,
+      icon: User,
+      requiresAuth: true,
+    },
+    {
+      title: "More",
+      path: "/more",
+      icon: Ellipsis,
+    },
+  ];
+
   return (
     <aside
       className={clsx(
@@ -99,28 +101,29 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
           Social
         </Link>
         <ul className="flex-1 overflow-y-auto scrollbar-beauty">
-          {navItems.map((nav) => (
-            <li key={nav.title}>
-              <Link
-                href={nav.path}
-                className={clsx(
-                  `flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full`,
-                  pathname === nav.path && `font-bold`
-                )}
-              >
-                <div className="relative">
-                  <nav.icon size={20} />
-                  {nav.path === `/notifications` &&
-                    counts.unreadNotifications > 0 && (
+          {navItems
+            .filter((nav) => (!auth ? !nav.requiresAuth : nav))
+            .map((nav) => (
+              <li key={nav.title}>
+                <Link
+                  href={nav.path}
+                  className={clsx(
+                    `flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full`,
+                    pathname === nav.path && `font-bold`
+                  )}
+                >
+                  <div className="relative">
+                    <nav.icon size={20} />
+                    {nav.count && nav.count > 0 ? (
                       <span className="absolute -right-1 -top-1 w-4 overflow-hidden aspect-square p-0.5 text-xs rounded-full bg-blue-500 text-white flex items-center justify-center">
-                        {counts.unreadNotifications}
+                        {nav.count}
                       </span>
-                    )}
-                </div>
-                <span className="flex-1">{nav.title}</span>
-              </Link>
-            </li>
-          ))}
+                    ) : null}
+                  </div>
+                  <span className="flex-1">{nav.title}</span>
+                </Link>
+              </li>
+            ))}
           <li>
             <button
               onClick={toggleTheme}

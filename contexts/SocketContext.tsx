@@ -11,7 +11,7 @@ import { useAuthContext } from "./AuthContext";
 import { NotificationDataType } from "@/types/notification";
 import toast from "react-hot-toast";
 import { getNotificationText, playNotificationSound } from "@/helpers/utils";
-import { getAuthUnreadCounts } from "@/lib/actions";
+import { getAuthUnreadCounts, markAllNotificationsAsRead } from "@/lib/actions";
 import { usePathname } from "next/navigation";
 
 const socket = io({
@@ -117,6 +117,14 @@ export const SocketProvider = ({
       initCounts();
     }
   }, [auth]);
+  useEffect(() => {
+    if (pathname === `/notifications` && counts.unreadNotifications) {
+      (async () => {
+        await markAllNotificationsAsRead();
+        setCounts((prev) => ({ ...prev, unreadNotifications: 0 }));
+      })();
+    }
+  }, [pathname, counts]);
 
   return (
     <SocketContext.Provider

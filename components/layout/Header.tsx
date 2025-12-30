@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import SidebarLeft from "./SidebarLeft";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const tabs = [
   {
@@ -20,6 +21,8 @@ const tabs = [
 ];
 
 const Header = () => {
+  const { auth } = useAuthContext();
+
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -38,15 +41,19 @@ const Header = () => {
     <>
       <header className="z-50 sticky top-0 backdrop-blur-xl">
         <div className="md:hidden p-4 flex items-center justify-between">
-          <Image
-            alt="avatar"
-            src={IMAGE_DEFAULT.AVATAR}
-            width={40}
-            height={40}
-            loading="lazy"
-            unoptimized
-            className="img rounded-full overflow-hidden"
-          />
+          <div>
+            {auth && (
+              <Image
+                alt="avatar"
+                src={auth?.avatarUrl || IMAGE_DEFAULT.AVATAR}
+                width={40}
+                height={40}
+                loading="lazy"
+                unoptimized
+                className="img rounded-full overflow-hidden"
+              />
+            )}
+          </div>
           <Link href={`/`} className="font-bold text-lg px-4 block">
             Social
           </Link>
