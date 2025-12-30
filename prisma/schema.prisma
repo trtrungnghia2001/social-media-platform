@@ -19,17 +19,98 @@ model User {
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
 
-    posts Post[]
+    posts     Post[]
+    likes     Like[]
+    bookmarks Bookmark[]
+
+    receivedNotifications Notification[] @relation("NotificationRecipient")
+    issuedNotifications   Notification[] @relation("NotificationIssuer")
+    notifications         Notification[]
+
+    followings Follow[] @relation("Following")
+    followers  Follow[] @relation("Follower")
 }
 
+// post
 model Post {
     id       String  @id @default(cuid())
     mediaUrl String?
     text     String?
 
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
     authorId String
     author   User   @relation(fields: [authorId], references: [id])
 
+    likes     Like[]
+    bookmarks Bookmark[]
+
+    notifications Notification[]
+}
+
+model Like {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    authorId String
+    author   User   @relation(fields: [authorId], references: [id])
+
+    postId String
+    post   Post   @relation(fields: [postId], references: [id])
+
+    @@id([authorId, postId])
+}
+
+model Bookmark {
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    authorId String
+    author   User   @relation(fields: [authorId], references: [id])
+
+    postId String
+    post   Post   @relation(fields: [postId], references: [id])
+
+    @@id([authorId, postId])
+}
+
+model Follow {
+    followerId String
+    follower   User   @relation("Following", fields: [followerId], references: [id])
+
+    followingId String
+    following   User   @relation("Follower", fields: [followingId], references: [id])
+
+    createdAt DateTime @default(now())
+
+    @@id([followerId, followingId])
+}
+
+enum NotificationType {
+    LIKE
+    COMMENT
+    FOLLOW
+    MENTION
+    REPOST
+}
+
+model Notification {
+    id        String           @id @default(cuid())
+    createdAt DateTime         @default(now())
+    read      Boolean          @default(false)
+    type      NotificationType
+
+    issuerId String
+    issuer   User   @relation("NotificationIssuer", fields: [issuerId], references: [id], onDelete: Cascade)
+
+    recipientId String
+    recipient   User   @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+    postId String?
+    post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id])
+
+    @@index([recipientId, createdAt])
 }

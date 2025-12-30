@@ -13,10 +13,10 @@ export type PostDataType = Prisma.PostGetPayload<{
 
     _count: {
       select: {
-        comments: true;
-        likes: true;
-        shares: true;
         bookmarks: true;
+        likes: true;
+        comments: true;
+        shares: true;
       };
     };
   };

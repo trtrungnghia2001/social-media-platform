@@ -1,11 +1,13 @@
-import { mockPosts } from "@/helpers/mockdata";
 import { memo } from "react";
 import PostCard from "./PostCard";
+import { getPosts } from "@/lib/actions";
 
-const Feed = () => {
+const Feed = async ({ username }: { username?: string }) => {
+  const posts = await getPosts(username);
+
   return (
     <ul>
-      {mockPosts.map((post) => (
+      {posts.map((post) => (
         <li key={post.id}>
           <PostCard post={post} />
         </li>

@@ -9,8 +9,21 @@ import {
   CalendarClock,
   MapPin,
   X,
+  Loader,
 } from "lucide-react";
-import { ChangeEvent, memo, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPost } from "@/lib/actions";
+import { uploadToCloudinary } from "@/helpers/utils";
+import toast from "react-hot-toast";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { IMAGE_DEFAULT } from "@/helpers/constants";
 
 const PostForm = () => {
   const postFormIcons = [
@@ -58,20 +71,44 @@ const PostForm = () => {
     }
   };
 
-  const onSubmit = (e: ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!file && !text) return;
-    console.log({ file, text });
-  };
+  const { auth } = useAuthContext();
+
+  const [state, formAction, isLoading] = useActionState(
+    async (state: unknown, formData: FormData) => {
+      const text = formData.get("text") as string;
+      const file = formData.get("file") as File | null;
+
+      const hasFile = file && file.size > 0;
+      if ((!text.trim() && !hasFile) || !auth) return;
+
+      try {
+        let mediaUrl = "";
+        if (hasFile) {
+          mediaUrl = await uploadToCloudinary(file);
+        }
+
+        await createPost({ text, mediaUrl });
+
+        toast.success("Created successfully!");
+        setText("");
+        setFile(null);
+        if (inputFileRef.current) {
+          inputFileRef.current.value = "";
+        }
+      } catch (error) {
+        toast.error("Created failed!");
+        console.error(error);
+      }
+    },
+    null
+  );
 
   return (
     <div className="p-4 flex items-start gap-4">
-      <Link href={`/user/user_1`}>
+      <Link href={`/user/` + auth?.username}>
         <Image
           alt="avatar"
-          src={
-            "https://pbs.twimg.com/profile_images/2001914859773202432/Bsabgg43_400x400.jpg"
-          }
+          src={auth?.avatarUrl || IMAGE_DEFAULT.AVATAR}
           loading="lazy"
           width={40}
           height={40}
@@ -79,7 +116,7 @@ const PostForm = () => {
           className="rounded-full"
         />
       </Link>
-      <form onSubmit={onSubmit} className="flex-1 space-y-2">
+      <form action={formAction} className="flex-1 space-y-2">
         <textarea
           name="text"
           id="text"
@@ -91,6 +128,7 @@ const PostForm = () => {
         ></textarea>
         <div className="flex items-center justify-between gap-4">
           <input
+            name="file"
             type="file"
             ref={inputFileRef}
             hidden
@@ -98,7 +136,6 @@ const PostForm = () => {
               const selectedFile = e.target.files?.[0];
               if (selectedFile) {
                 setFile(selectedFile);
-                e.target.value = "";
               }
             }}
           />
@@ -119,8 +156,8 @@ const PostForm = () => {
               </button>
             ))}
           </div>
-          <button className="btn" disabled={!text && !file}>
-            Post
+          <button className="btn" disabled={(!text && !file) || isLoading}>
+            {isLoading ? <Loader size={16} className="animate-spin" /> : `Post`}
           </button>
         </div>
         {filePreview && (

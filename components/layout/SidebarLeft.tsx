@@ -18,11 +18,13 @@ import {
   Brain,
   LogIn,
 } from "lucide-react";
-import { useClerk, useUser } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import { IMAGE_DEFAULT } from "@/helpers/constants";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { ComponentProps } from "react";
+import { useSocketContext } from "@/contexts/SocketContext";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export type NavItemType = {
   title: string;
@@ -80,13 +82,14 @@ export const navItems: NavItemType[] = [
 const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
   const { theme, toggleTheme } = useThemeContext();
   const pathname = usePathname();
-  const { user, isSignedIn } = useUser();
+  const { auth } = useAuthContext();
   const { signOut } = useClerk();
 
+  const { counts } = useSocketContext();
   return (
     <aside
       className={clsx(
-        `w-3xs h-screen bg-background sticky top-0 pt-4`,
+        `w-48 md:w-3xs h-screen bg-background sticky top-0 pt-4`,
         className
       )}
       {...props}
@@ -105,8 +108,16 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
                   pathname === nav.path && `font-bold`
                 )}
               >
-                <nav.icon size={18} />
-                <span>{nav.title}</span>
+                <div className="relative">
+                  <nav.icon size={20} />
+                  {nav.path === `/notifications` &&
+                    counts.unreadNotifications > 0 && (
+                      <span className="absolute -right-1 -top-1 w-4 overflow-hidden aspect-square p-0.5 text-xs rounded-full bg-blue-500 text-white flex items-center justify-center">
+                        {counts.unreadNotifications}
+                      </span>
+                    )}
+                </div>
+                <span className="flex-1">{nav.title}</span>
               </Link>
             </li>
           ))}
@@ -130,7 +141,7 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
             </button>
           </li>
           <li>
-            {isSignedIn && (
+            {auth && (
               <button
                 onClick={() => signOut()}
                 className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
@@ -139,7 +150,7 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
                 Sign out
               </button>
             )}
-            {!isSignedIn && (
+            {!auth && (
               <Link
                 href={`/sign-in`}
                 className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
@@ -150,20 +161,24 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
             )}
           </li>
         </ul>
-        {user && (
+        {auth && (
           <div className="flex items-center gap-4 p-4">
             <Image
               alt="avatar"
-              src={user?.imageUrl || IMAGE_DEFAULT.AVATAR}
+              src={auth.avatarUrl || IMAGE_DEFAULT.AVATAR}
               width={40}
               height={40}
               unoptimized
               loading="lazy"
               className="img rounded-full overflow-hidden"
             />
-            <div>
-              <h3 className="font-bold leading-none">{user?.fullName}</h3>
-              <p className="text-13 text-secondary">@{user?.username}</p>
+            <div className="flex-1">
+              <h3 className="font-bold leading-none line-clamp-1">
+                {auth.name}
+              </h3>
+              <p className="text-13 text-secondary line-clamp-1">
+                @{auth.username}
+              </p>
             </div>
           </div>
         )}

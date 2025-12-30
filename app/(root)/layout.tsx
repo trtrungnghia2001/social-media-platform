@@ -3,6 +3,7 @@ import SidebarLeft from "@/components/layout/SidebarLeft";
 import SidebarRight from "@/components/layout/SidebarRight";
 import { usePathname } from "next/navigation";
 import React, { useMemo } from "react";
+import { Toaster } from "react-hot-toast";
 
 const LayoutRoot = ({
   children,
@@ -23,6 +24,7 @@ const LayoutRoot = ({
         {children}
       </main>
       {!isHiddenSidebarRight && <SidebarRight />}
+      <Toaster position="top-center" reverseOrder={false} />
     </div>
   );
 };

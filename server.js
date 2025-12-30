@@ -27,15 +27,21 @@ app.prepare().then(() => {
     }
 
     socket.on("disconnect", () => {
-      if (userId && onlineUsers.get(userId) === socket.id) {
+      if (userId) {
         onlineUsers.delete(userId);
-        console.log("Socket client connect::", socket.id);
-
         io.emit("getOnlineUsers", Array.from(onlineUsers.keys()));
       }
     });
 
     // notifications
+    socket.on("sendNotification", async (value) => {
+      const { data, recipientId } = value;
+      const recipientIdSocket = onlineUsers.get(recipientId);
+
+      if (recipientIdSocket) {
+        io.to(recipientIdSocket).emit("sendNotification", data);
+      }
+    });
     // chat
   });
 

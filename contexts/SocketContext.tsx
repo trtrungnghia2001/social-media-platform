@@ -1,5 +1,4 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
 import {
   createContext,
   ReactNode,
@@ -8,6 +7,12 @@ import {
   useState,
 } from "react";
 import { io } from "socket.io-client";
+import { useAuthContext } from "./AuthContext";
+import { NotificationDataType } from "@/types/notification";
+import toast from "react-hot-toast";
+import { getNotificationText, playNotificationSound } from "@/helpers/utils";
+import { getAuthUnreadCounts } from "@/lib/actions";
+import { usePathname } from "next/navigation";
 
 const socket = io({
   autoConnect: false,
@@ -16,6 +21,15 @@ const socket = io({
 // type
 type SocketContextType = {
   onlineUsers: string[];
+  counts: { unreadNotifications: number; unreadMessages: number };
+  setCounts: (counts: {
+    unreadNotifications: number;
+    unreadMessages: number;
+  }) => void;
+  handleNotification: (value: {
+    recipientId: string;
+    data: NotificationDataType;
+  }) => void;
 };
 
 // context
@@ -24,32 +38,90 @@ const SocketContext = createContext<SocketContextType | null>(null);
 export const SocketProvider = ({
   children,
 }: Readonly<{ children: ReactNode }>) => {
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const pathname = usePathname();
 
-  const { user, isSignedIn } = useUser();
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [counts, setCounts] = useState({
+    unreadNotifications: 0,
+    unreadMessages: 0,
+  });
+
+  // connect
+  const { auth } = useAuthContext();
   useEffect(() => {
-    if (isSignedIn && !socket.connected) {
+    if (auth && !socket.connected) {
       socket.auth = {
-        userId: user.id,
+        userId: auth.id,
       };
       socket.connect();
     }
-  }, [isSignedIn, user]);
+
+    return () => {
+      if (socket.connected) {
+        socket.disconnect();
+      }
+    };
+  }, [auth]);
 
   useEffect(() => {
     const handleOnlineUsers = (value: string[]) => {
       setOnlineUsers(value);
     };
+    const handleNotification = (value: NotificationDataType) => {
+      if (pathname !== `/notifications`) {
+        setCounts((prev) => ({
+          ...prev,
+          unreadNotifications: prev.unreadNotifications + 1,
+        }));
+      }
+
+      const messages = `${value.issuer.name} ${getNotificationText(
+        value.type
+      )}`;
+
+      playNotificationSound();
+
+      toast(messages, {
+        position: "bottom-right",
+      });
+    };
 
     socket.on("getOnlineUsers", handleOnlineUsers);
+    socket.on("sendNotification", handleNotification);
+
     return () => {
       socket.off("getOnlineUsers", handleOnlineUsers);
+      socket.off("sendNotification", handleNotification);
     };
-  }, []);
-  console.log({ onlineUsers });
+  }, [pathname]);
+
+  const handleNotification = ({
+    recipientId,
+    data,
+  }: {
+    recipientId: string;
+    data: NotificationDataType;
+  }) => {
+    socket.emit("sendNotification", {
+      recipientId,
+      data,
+    });
+  };
+
+  useEffect(() => {
+    if (auth) {
+      const initCounts = async () => {
+        const res = await getAuthUnreadCounts();
+        setCounts(res);
+      };
+      initCounts();
+    }
+  }, [auth]);
 
   return (
-    <SocketContext.Provider value={{ onlineUsers }}>
+    <SocketContext.Provider
+      value={{ onlineUsers, counts, setCounts, handleNotification }}
+    >
       {children}
     </SocketContext.Provider>
   );

@@ -1,4 +1,3 @@
-"use client";
 import { IMAGE_DEFAULT } from "@/helpers/constants";
 import { formatTimeAgo } from "@/helpers/utils";
 import { PostDataType } from "@/types";
@@ -7,12 +6,10 @@ import Link from "next/link";
 import { memo } from "react";
 import PostCardAction from "./PostCardAction";
 import OnlineStatus from "./OnlineStatus";
-import { useSocketContext } from "@/contexts/SocketContext";
 import { Ellipsis } from "lucide-react";
 
 const PostCard = ({ post }: { post: PostDataType }) => {
-  const authorUrl = `/user/` + post.author.id;
-  const { onlineUsers } = useSocketContext();
+  const authorUrl = `/user/` + post.author.username;
 
   return (
     <div className="flex items-start gap-4 border-t border-t-border p-4 hover:bg-secondaryBg transition-all">
@@ -25,7 +22,7 @@ const PostCard = ({ post }: { post: PostDataType }) => {
           height={40}
           className="img rounded-full overflow-hidden"
         />
-        <OnlineStatus status={onlineUsers.includes(post.author.id)} />
+        <OnlineStatus userId={post.author.id} />
       </Link>
       <div className="flex-1 space-y-2">
         {/* author */}

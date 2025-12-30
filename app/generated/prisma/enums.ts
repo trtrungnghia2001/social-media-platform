@@ -9,7 +9,12 @@
 * 🟢 You can import this file directly.
 */
 
+export const NotificationType = {
+  LIKE: 'LIKE',
+  COMMENT: 'COMMENT',
+  FOLLOW: 'FOLLOW',
+  MENTION: 'MENTION',
+  REPOST: 'REPOST'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

@@ -1,97 +1,103 @@
-"use client";
+import ButtonHistoryBack from "@/components/ButtonHistoryBack";
 import Feed from "@/components/Feed";
-import { ArrowLeft, CalendarDays, Link as LinkIcon } from "lucide-react";
+import OnlineStatus from "@/components/OnlineStatus";
+import ProfileActions from "@/components/ProfileActions";
+import { IMAGE_DEFAULT } from "@/helpers/constants";
+import { getAuth, getUserByUsername } from "@/lib/actions";
+import { CalendarDays, LinkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 
-const ProfilePage = () => {
-  const params = useParams();
-  const username = params.username as string;
+const ProfilePage = async ({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) => {
+  const { username } = await params;
+  const { user, totalPosts, totalFollowers, totalFollowings, isFollowing } =
+    await getUserByUsername(username);
+  const auth = await getAuth();
+
+  if (!user) return notFound();
+
   return (
     <div>
       {/* top nav */}
-      <div className="z-50 sticky top-0 p-4 flex items-center gap-4 backdrop-blur-xl">
-        <button onClick={() => history.back()} className="btn-options">
-          <ArrowLeft size={18} />
-        </button>
-        <div>
-          <h3>Trần Trung Nghĩa</h3>
-          <p className="text-xs text-secondary">1 post</p>
+      <div className="z-10 sticky top-0 p-4 flex items-center gap-4 backdrop-blur-xl">
+        <ButtonHistoryBack />
+        <div className="space-y-1">
+          <h3>{user.name}</h3>
+          <p className="text-13 text-secondary">{totalPosts} posts</p>
         </div>
       </div>
       {/* info */}
       <div className="relative mb-16">
         <Image
           alt="bg"
-          src={
-            "https://pbs.twimg.com/profile_banners/1504011781420699651/1766128526/1080x360"
-          }
+          src={user.backgroundUrl || IMAGE_DEFAULT.BACKGROUND}
           loading="lazy"
           width={1280}
           height={360}
           unoptimized
+          className="img w-full max-h-48"
         />
         <div className="absolute bottom-0 translate-y-1/2 left-4 right-4 flex items-center justify-between gap-4">
-          <div className="bg-background rounded-full p-1 border border-border">
+          <div className="bg-background rounded-full p-1 border border-border relative">
             <Image
               alt="avatar"
-              src={
-                "https://pbs.twimg.com/profile_images/2001914859773202432/Bsabgg43_400x400.jpg"
-              }
+              src={user.avatarUrl || IMAGE_DEFAULT.AVATAR}
               loading="lazy"
               width={128}
               height={128}
               unoptimized
-              className="rounded-full"
+              className="rounded-full img"
             />
+            <OnlineStatus userId={user.id} className="bottom-4 right-4" />
           </div>
-          <div className="pt-12 flex-1 flex justify-end flex-wrap gap-2">
-            {username === "user_1" ? (
-              <>
-                <button className="block btn font-bold">Edit profile</button>
-              </>
-            ) : (
-              <>
-                <button className="block btn font-bold">Message</button>
-                <button className="block btn font-bold">Follow</button>
-              </>
-            )}
-          </div>
+          <ProfileActions
+            user={user}
+            isFollowing={isFollowing}
+            auth={auth}
+            className="mt-12"
+          />
         </div>
       </div>
       <div className="p-4 space-y-2">
         <div>
-          <h2>Trần Trung Nghĩa</h2>
-          <p className="text-13 text-secondary">@Tr_TrungNghia</p>
+          <h2>{user.name}</h2>
+          <p className="text-13 text-secondary">@{user.username}</p>
         </div>
-        <div
-          className="whitespace-break-spaces"
-          dangerouslySetInnerHTML={{
-            __html: `Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi numquam repudiandae optio harum molestias cumque eligendi! Dicta aperiam eius asperiores, earum, officia, optio rem deleniti cumque corporis architecto id consequatur.`,
-          }}
-        />
-        <div className="text-sm text-secondary flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <LinkIcon size={16} className="inline-block" />
-            <Link
-              href={`patreon.com/jared999d`}
-              className="text-blue-500 underline"
-            >
-              patreon.com/jared999d
-            </Link>
-          </div>
-          <div className="flex items-center gap-2">
-            <CalendarDays size={16} className="inline-block" />
-            Join at {new Date(`11/11/2026`).toLocaleDateString()}
-          </div>
+        {user.bio && (
+          <div
+            className="whitespace-break-spaces"
+            dangerouslySetInnerHTML={{
+              __html: user.bio,
+            }}
+          />
+        )}
+        <div className="text-sm text-secondary flex flex-wrap items-center gap-x-4 gap-y-2">
+          {user.websiteUrl && (
+            <div className="flex items-center gap-2">
+              <LinkIcon size={16} className="inline-block" />
+              <Link href={user.websiteUrl} className="text-blue-500 underline">
+                {user.websiteUrl}
+              </Link>
+            </div>
+          )}
+          {user.createdAt && (
+            <div className="flex items-center gap-2">
+              <CalendarDays size={16} className="inline-block" />
+              Join at {new Date(user.createdAt).toLocaleDateString()}
+            </div>
+          )}
         </div>
         <div className="space-x-4 text-sm text-secondary">
-          <span>100 following</span>
-          <span>100 follower</span>
+          <span>{totalFollowings} following</span>
+          <span>{totalFollowers} follower</span>
         </div>
       </div>
-      <Feed />
+      <Feed username={username} />
     </div>
   );
 };

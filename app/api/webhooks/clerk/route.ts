@@ -43,22 +43,25 @@ export async function POST(req: Request) {
 
   // Xử lý logic đồng bộ vào Prisma
   const eventType = evt.type;
+  console.log({ eventType });
 
   if (eventType === "user.created" || eventType === "user.updated") {
     const { id, first_name, last_name, image_url, username } = evt.data;
 
     // Lưu hoặc cập nhật User vào DB của bạn
-    const name = username || `${first_name} ${last_name}`;
+    const name = `${first_name} ${last_name}` as string;
+
     await prisma.user.upsert({
       where: { clerkId: id },
       update: {
-        username: name,
+        name: name,
+        username: username as string,
         avatarUrl: image_url,
       },
       create: {
         clerkId: id,
         name: name,
-        username: name,
+        username: username as string,
         avatarUrl: image_url,
       },
     });
