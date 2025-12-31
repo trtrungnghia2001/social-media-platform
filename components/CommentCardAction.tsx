@@ -1,7 +1,10 @@
 "use client";
 import { CommentDataType } from "@/types";
 import { memo } from "react";
-import { MessageCircle, Heart } from "lucide-react";
+import { MessageCircle, Heart, Trash } from "lucide-react";
+import { useCommentContext } from "@/contexts/CommentContext";
+import { deleteCommentById } from "@/lib/actions";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const CommentCardAction = ({
   comment,
@@ -10,16 +13,30 @@ const CommentCardAction = ({
   comment: CommentDataType;
   setOpenForm: () => void;
 }) => {
+  const { auth } = useAuthContext();
+  const { deleteCommentId } = useCommentContext();
   return (
     <div>
       <div className="flex items-center text-13 text-secondary gap-4">
         <button onClick={setOpenForm}>
           <MessageCircle size={16} />
         </button>
-        <button>
-          <Heart size={16} />
-        </button>
-        <button>{comment._count.replies} replies</button>
+        {auth?.id === comment.authorId && (
+          <>
+            <button>
+              <Heart size={16} />
+            </button>
+            <button
+              onClick={async () => {
+                deleteCommentId(comment.id);
+                await deleteCommentById(comment.id);
+              }}
+            >
+              <Trash size={16} />
+            </button>
+          </>
+        )}
+        <span>{comment._count.replies} replies</span>
       </div>
     </div>
   );

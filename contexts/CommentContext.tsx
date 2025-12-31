@@ -15,6 +15,7 @@ type CommentContextType = {
   getReplies: (commentId: string) => CommentDataType[];
   getComments: CommentDataType[];
   setAllComments: Dispatch<SetStateAction<CommentDataType[]>>;
+  deleteCommentId: (commentId: string) => void;
 };
 const CommentContext = createContext<CommentContextType | null>(null);
 
@@ -37,9 +38,18 @@ export const CommentProvider = ({
     );
   }, [allComments]);
 
+  const deleteCommentId = useCallback(
+    (commentId: string) => {
+      setAllComments((prev) =>
+        prev.filter((comment) => comment.id !== commentId)
+      );
+    },
+    [allComments]
+  );
+
   return (
     <CommentContext.Provider
-      value={{ getComments, getReplies, setAllComments }}
+      value={{ getComments, getReplies, setAllComments, deleteCommentId }}
     >
       {children}
     </CommentContext.Provider>

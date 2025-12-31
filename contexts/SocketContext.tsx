@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { getNotificationText, playNotificationSound } from "@/helpers/utils";
 import { getAuthUnreadCounts, markAllNotificationsAsRead } from "@/lib/actions";
 import { usePathname } from "next/navigation";
-import { NotificationDataType } from "@/types";
+import { NotificationDataType, UserDataType } from "@/types";
 
 const socket = io({
   autoConnect: false,
@@ -30,6 +30,8 @@ type SocketContextType = {
     recipientId: string;
     data: NotificationDataType;
   }) => void;
+  currentUser: UserDataType | null;
+  setCurrentUser: (currentUser: UserDataType | null) => void;
 };
 
 // context
@@ -40,11 +42,13 @@ export const SocketProvider = ({
 }: Readonly<{ children: ReactNode }>) => {
   const pathname = usePathname();
 
+  // state
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [counts, setCounts] = useState({
     unreadNotifications: 0,
     unreadMessages: 0,
   });
+  const [currentUser, setCurrentUser] = useState<UserDataType | null>(null);
 
   // connect
   const { auth } = useAuthContext();
@@ -108,6 +112,7 @@ export const SocketProvider = ({
     });
   };
 
+  // counts notifi and message
   useEffect(() => {
     if (auth) {
       const initCounts = async () => {
@@ -128,7 +133,14 @@ export const SocketProvider = ({
 
   return (
     <SocketContext.Provider
-      value={{ onlineUsers, counts, setCounts, handleNotification }}
+      value={{
+        onlineUsers,
+        counts,
+        setCounts,
+        setCurrentUser,
+        currentUser,
+        handleNotification,
+      }}
     >
       {children}
     </SocketContext.Provider>

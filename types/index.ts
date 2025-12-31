@@ -49,3 +49,17 @@ export type CommentDataType = Prisma.CommentGetPayload<{
     };
   };
 }>;
+
+export type UserDataType = Prisma.UserGetPayload<{
+  include: {
+    _count: {
+      select: {
+        followers: true;
+        followings: true;
+        posts: true;
+      };
+    };
+  };
+}> & {
+  isFollowing: boolean;
+};

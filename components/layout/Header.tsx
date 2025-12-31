@@ -43,15 +43,17 @@ const Header = () => {
         <div className="md:hidden p-4 flex items-center justify-between">
           <div>
             {auth && (
-              <Image
-                alt="avatar"
-                src={auth?.avatarUrl || IMAGE_DEFAULT.AVATAR}
-                width={40}
-                height={40}
-                loading="lazy"
-                unoptimized
-                className="img rounded-full overflow-hidden"
-              />
+              <Link href={`/user/` + auth.username}>
+                <Image
+                  alt="avatar"
+                  src={auth?.avatarUrl || IMAGE_DEFAULT.AVATAR}
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  unoptimized
+                  className="img rounded-full overflow-hidden"
+                />
+              </Link>
             )}
           </div>
           <Link href={`/`} className="font-bold text-lg px-4 block">

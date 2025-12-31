@@ -16,6 +16,7 @@ import { useSocketContext } from "@/contexts/SocketContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { NotificationType } from "@/app/generated/prisma/enums";
+import PostOptions from "./PostOptions";
 
 type ActionType = keyof typeof NotificationType | "BOOKMARK";
 
@@ -24,7 +25,10 @@ const PostCardAction = ({ post }: { post: PostDataType }) => {
   const { handleNotification } = useSocketContext();
 
   const handleAction = async (type: ActionType) => {
-    if (!auth) return;
+    if (!auth) {
+      toast.error(`Please log in!`);
+      return;
+    }
 
     try {
       if (type === "LIKE") {
@@ -85,6 +89,7 @@ const PostCardAction = ({ post }: { post: PostDataType }) => {
         >
           <Bookmark size={16} />
         </button>
+        <PostOptions post={post} />
         <button>
           <ArrowUpFromLine size={16} />
         </button>

@@ -15,8 +15,7 @@ const ProfilePage = async ({
   params: Promise<{ username: string }>;
 }) => {
   const { username } = await params;
-  const { user, totalPosts, totalFollowers, totalFollowings, isFollowing } =
-    await getUserByUsername(username);
+  const user = await getUserByUsername(username);
   const auth = await getAuth();
 
   if (!user) return notFound();
@@ -28,7 +27,7 @@ const ProfilePage = async ({
         <ButtonHistoryBack />
         <div className="space-y-1">
           <h3>{user.name}</h3>
-          <p className="text-13 text-secondary">{totalPosts} posts</p>
+          <p className="text-13 text-secondary">{user._count.posts} posts</p>
         </div>
       </div>
       {/* info */}
@@ -57,7 +56,7 @@ const ProfilePage = async ({
           </div>
           <ProfileActions
             user={user}
-            isFollowing={isFollowing}
+            isFollowing={user.isFollowing}
             auth={auth}
             className="mt-12"
           />
@@ -93,8 +92,8 @@ const ProfilePage = async ({
           )}
         </div>
         <div className="space-x-4 text-sm text-secondary">
-          <span>{totalFollowings} following</span>
-          <span>{totalFollowers} follower</span>
+          <span>{user._count.followings} following</span>
+          <span>{user._count.followers} follower</span>
         </div>
       </div>
       <Feed username={username} />

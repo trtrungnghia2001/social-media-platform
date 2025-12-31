@@ -85,6 +85,10 @@ const CommentForm = ({
 
   const [_, formAction, isLoading] = useActionState(
     async (_: unknown, formData: FormData) => {
+      if (!auth) {
+        toast.error(`Please log in!`);
+        return;
+      }
       const text = formData.get("text") as string;
       const file = formData.get("file") as File | null;
 
@@ -96,10 +100,6 @@ const CommentForm = ({
         if (hasFile) {
           mediaUrl = await uploadToCloudinary(file);
         }
-        console.log("client:", {
-          postId,
-          parentCommentId,
-        });
 
         const { comment, notifi } = await createComment({
           text,
@@ -115,7 +115,6 @@ const CommentForm = ({
           handleNotification({ recipientId: notifi.recipientId, data: notifi });
         }
 
-        toast.success("Created successfully!");
         setText("");
         setFile(null);
         if (inputFileRef.current) {
@@ -130,7 +129,7 @@ const CommentForm = ({
   );
 
   return (
-    <div className="p-4 flex items-start gap-4">
+    <div className="border-t border-t-border p-4 flex items-start gap-4">
       <Link href={`/user/` + auth?.username}>
         <Image
           alt="avatar"

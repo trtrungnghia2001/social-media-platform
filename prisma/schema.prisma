@@ -61,7 +61,7 @@ model Like {
     author   User   @relation(fields: [authorId], references: [id])
 
     postId String
-    post   Post   @relation(fields: [postId], references: [id])
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
     @@id([authorId, postId])
 }
@@ -74,7 +74,7 @@ model Bookmark {
     author   User   @relation(fields: [authorId], references: [id])
 
     postId String
-    post   Post   @relation(fields: [postId], references: [id])
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
     @@id([authorId, postId])
 }
@@ -104,7 +104,7 @@ model Comment {
     post     Post   @relation(fields: [postId], references: [id])
 
     parentCommentId String?
-    parentComment   Comment?  @relation("CommentToReplies", fields: [parentCommentId], references: [id])
+    parentComment   Comment?  @relation("CommentToReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
     replies         Comment[] @relation("CommentToReplies")
 }
 

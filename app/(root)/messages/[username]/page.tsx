@@ -4,35 +4,56 @@ import MessageCard from "@/components/MessageCard";
 import OnlineStatus from "@/components/OnlineStatus";
 import { useSocketContext } from "@/contexts/SocketContext";
 import { IMAGE_DEFAULT } from "@/helpers/constants";
+import { getUserByUsername } from "@/lib/actions";
+import { useQuery } from "@tanstack/react-query";
 import { Video } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
+import { useEffect, useMemo } from "react";
 
-const MessagesIdPage = () => {
-  const { onlineUsers } = useSocketContext();
+const MessagesUsernamePage = () => {
   const params = useParams();
-  const userId = params.id as string;
+  const username = params.username as string;
+  const { setCurrentUser } = useSocketContext();
+
+  const { data: user } = useQuery({
+    queryKey: ["message", "users", username],
+    queryFn: async () => getUserByUsername(username),
+    enabled: !!username,
+  });
+
+  console.log({ user, username });
+
+  // useEffect(()=>{
+  //   if(data?.user){
+  //     setCurrentUser(data.user)
+  //   }else{
+  //     setCurrentUser(null)
+  //   }
+  // },[data])
+
+  if (!user) return notFound();
 
   return (
     <div className="h-full flex flex-col justify-between">
       {/* header */}
       <section className="p-4 flex items-center justify-between gap-8 border-b border-b-border shadow">
-        <Link href={`/user/` + `user_1`} className="flex items-center gap-2">
+        <Link href={`/user/` + user.id} className="flex items-center gap-2">
           <div className="relative">
             <Image
               alt="avatar"
-              src={IMAGE_DEFAULT.AVATAR}
+              src={user.avatarUrl || IMAGE_DEFAULT.AVATAR}
               loading="lazy"
               width={40}
               height={40}
               unoptimized
               className="rounded-full"
             />
-            <OnlineStatus userId={userId} />
+            <OnlineStatus userId={user.id} />
           </div>
           <div>
-            <h3>Mai Phuong Thuy</h3>
+            <h3>{user.name}</h3>
           </div>
         </Link>
         <div>
@@ -61,4 +82,4 @@ const MessagesIdPage = () => {
   );
 };
 
-export default MessagesIdPage;
+export default MessagesUsernamePage;

@@ -18,13 +18,13 @@ const StatusPage = async ({ params }: { params: Promise<{ id: string }> }) => {
       <div className="z-10 sticky top-0 p-4 flex items-center gap-4 backdrop-blur-xl">
         <ButtonHistoryBack />
         <div className="space-y-1">
-          <p className="text-13 text-secondary">Post</p>
+          <h3>Post</h3>
         </div>
       </div>
       <PostCard post={post} />
-      <div className="pt-4 border-t border-t-border">
-        <CommentForm postId={id} />
-      </div>
+      <CommentForm postId={id} />
+      {/* <div className="pt-4 border-t border-t-border">
+      </div> */}
       <CommentList comments={comments} />
     </div>
   );

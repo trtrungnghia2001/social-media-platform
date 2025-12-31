@@ -3,12 +3,20 @@ import {
   Comment,
   NotificationType,
   Post,
+  Prisma,
   User,
 } from "@/app/generated/prisma/client";
 import prisma from "./prisma";
 import { auth } from "@clerk/nextjs/server";
-import { CommentDataType, NotificationDataType, PostDataType } from "@/types";
+import {
+  CommentDataType,
+  NotificationDataType,
+  PostDataType,
+  UserDataType,
+} from "@/types";
 import { revalidatePath } from "next/cache";
+
+const pageSize = 5;
 
 // auth
 const checkAuthServer = async () => {
@@ -79,33 +87,79 @@ export const getOptionalAuth = async () => {
   });
 };
 // user
-export const getUserByUsername = async (username: string) => {
-  const getUser = await getOptionalAuth();
-  const authId = getUser?.id;
+export const getUserByUsername = async (
+  username: string
+): Promise<UserDataType | null> => {
+  const user = await getOptionalAuth();
+  const authId = user?.id;
 
-  const [user, totalPosts, totalFollowers, totalFollowings, isFollowing] =
-    await Promise.all([
-      await prisma.user.findUnique({ where: { username } }),
-      await prisma.post.count({ where: { author: { username } } }),
-      await prisma.follow.count({ where: { following: { username } } }),
-      await prisma.follow.count({ where: { follower: { username } } }),
-      await prisma.follow.findFirst({
+  const getUser = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+    include: {
+      followers: {
         where: {
-          following: {
-            username: username,
-          },
           followerId: authId,
         },
-      }),
-    ]);
+      },
+      _count: {
+        select: {
+          posts: true,
+          followers: true,
+          followings: true,
+        },
+      },
+    },
+  });
 
-  return {
-    user,
-    totalPosts,
-    totalFollowers,
-    totalFollowings,
-    isFollowing: !!isFollowing,
+  if (!getUser) return null;
+
+  const formattedUser: UserDataType = {
+    ...getUser,
+    isFollowing: !!getUser && getUser.followers.length > 0,
   };
+
+  return formattedUser;
+};
+export const getUsers = async (q = ""): Promise<UserDataType[]> => {
+  const user = await getOptionalAuth();
+  const authId = user?.id;
+
+  const users = await prisma.user.findMany({
+    where: {
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { username: { contains: q, mode: "insensitive" } },
+      ],
+      NOT: {
+        id: authId,
+      },
+    },
+    include: {
+      followers: {
+        where: {
+          followerId: authId,
+        },
+      },
+      _count: {
+        select: {
+          posts: true,
+          followers: true,
+          followings: true,
+        },
+      },
+    },
+
+    take: 10,
+  });
+
+  const formattedUsers: UserDataType[] = users.map((u) => ({
+    ...u,
+    isFollowing: !!user && u.followers.length > 0,
+  }));
+
+  return formattedUsers;
 };
 export const toggleFollow = async (userId: string) => {
   const auth = await checkAuthServer();
@@ -152,18 +206,45 @@ export const toggleFollow = async (userId: string) => {
 };
 
 // post
-export const getPosts = async (username?: string): Promise<PostDataType[]> => {
+export const getPostInfinite = async ({
+  cursor,
+  username,
+  following,
+  q = "",
+}: {
+  cursor?: string;
+  username?: string;
+  following?: boolean;
+  q?: string;
+}): Promise<{ posts: PostDataType[]; nextCursor: string | null }> => {
   const user = await getOptionalAuth();
   const authId = user?.id;
 
+  const where: Prisma.PostWhereInput = {
+    ...(username
+      ? { author: { username } }
+      : following && authId
+      ? {
+          author: {
+            followers: {
+              some: {
+                followerId: authId,
+              },
+            },
+          },
+        }
+      : {}),
+    text: {
+      contains: q,
+      mode: "insensitive",
+    },
+  };
+
   const posts = await prisma.post.findMany({
-    ...(username && {
-      where: {
-        author: {
-          username: username,
-        },
-      },
-    }),
+    take: pageSize,
+    skip: cursor ? 1 : 0,
+    cursor: cursor ? { id: cursor } : undefined,
+    where: where,
     include: {
       author: {
         select: {
@@ -192,19 +273,21 @@ export const getPosts = async (username?: string): Promise<PostDataType[]> => {
     },
   });
 
-  return posts.map((post) => ({
+  const nextCursor = posts.length === pageSize ? posts[pageSize - 1].id : null;
+
+  const formattedPosts = posts.map((post) => ({
     ...post,
     isLiked: !!authId && post.likes?.length > 0,
     isBookmarked: !!authId && post.bookmarks?.length > 0,
-    isShared: !!authId && true,
+    isShared: false, // Để tạm false vì bro chưa làm share
     _count: {
       ...post._count,
       shares: 0,
     },
-
     likes: undefined,
     bookmarks: undefined,
   }));
+  return { posts: formattedPosts, nextCursor };
 };
 export const getPostById = async (id: string): Promise<PostDataType | null> => {
   const user = await getOptionalAuth();
@@ -248,7 +331,7 @@ export const getPostById = async (id: string): Promise<PostDataType | null> => {
     ...post,
     isLiked: !!authId && post.likes?.length > 0,
     isBookmarked: !!authId && post.bookmarks?.length > 0,
-    isShared: !!authId && true,
+    isShared: false,
     _count: {
       ...post._count,
       shares: 0,
@@ -266,6 +349,12 @@ export const createPost = async (data: Partial<Post>) => {
   });
   revalidatePath("/", "layout");
   return newPost;
+};
+export const deletePostId = async (id: string) => {
+  await checkAuthServer();
+  const post = await prisma.post.delete({ where: { id } });
+
+  return post;
 };
 export const toggleLike = async (postId: string) => {
   const auth = await checkAuthServer();
@@ -371,6 +460,9 @@ export const createComment = async (data: Partial<Comment>) => {
   }
 
   return { comment, notifi };
+};
+export const deleteCommentById = async (commentId: string) => {
+  return await prisma.comment.delete({ where: { id: commentId } });
 };
 export const getCommentsByPostId = async (
   postId: string

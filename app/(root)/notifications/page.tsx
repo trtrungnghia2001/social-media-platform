@@ -10,6 +10,9 @@ const NotificationsPage = async () => {
   return (
     <div className="p-4">
       <h2 className="mb-4">Notifications</h2>
+      {notifications.length === 0 && (
+        <div className="text-center text-secondary">No notification</div>
+      )}
       {notifications.map((notifi) => (
         <div
           key={notifi.id}
@@ -33,7 +36,10 @@ const NotificationsPage = async () => {
               </Link>{" "}
               {getNotificationText(notifi.type)}{" "}
               {notifi.type !== "FOLLOW" && (
-                <Link href={`/`} className="text-13 underline text-blue-500">
+                <Link
+                  href={`/status/` + notifi.postId}
+                  className="text-13 underline text-blue-500"
+                >
                   View post
                 </Link>
               )}
