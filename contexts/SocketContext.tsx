@@ -8,11 +8,11 @@ import {
 } from "react";
 import { io } from "socket.io-client";
 import { useAuthContext } from "./AuthContext";
-import { NotificationDataType } from "@/types/notification";
 import toast from "react-hot-toast";
 import { getNotificationText, playNotificationSound } from "@/helpers/utils";
 import { getAuthUnreadCounts, markAllNotificationsAsRead } from "@/lib/actions";
 import { usePathname } from "next/navigation";
+import { NotificationDataType } from "@/types";
 
 const socket = io({
   autoConnect: false,

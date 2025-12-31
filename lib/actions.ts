@@ -1,10 +1,14 @@
 "use server";
-import { NotificationType, Post, User } from "@/app/generated/prisma/client";
+import {
+  Comment,
+  NotificationType,
+  Post,
+  User,
+} from "@/app/generated/prisma/client";
 import prisma from "./prisma";
 import { auth } from "@clerk/nextjs/server";
-import { PostDataType } from "@/types";
+import { CommentDataType, NotificationDataType, PostDataType } from "@/types";
 import { revalidatePath } from "next/cache";
-import { NotificationDataType } from "@/types/notification";
 
 // auth
 const checkAuthServer = async () => {
@@ -173,6 +177,7 @@ export const getPosts = async (username?: string): Promise<PostDataType[]> => {
         select: {
           bookmarks: true,
           likes: true,
+          comments: true,
         },
       },
       likes: {
@@ -194,13 +199,61 @@ export const getPosts = async (username?: string): Promise<PostDataType[]> => {
     isShared: !!authId && true,
     _count: {
       ...post._count,
-      comments: 10,
-      shares: 40,
+      shares: 0,
     },
 
     likes: undefined,
     bookmarks: undefined,
   }));
+};
+export const getPostById = async (id: string): Promise<PostDataType | null> => {
+  const user = await getOptionalAuth();
+  const authId = user?.id;
+
+  const post = await prisma.post.findFirst({
+    where: {
+      id,
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+      _count: {
+        select: {
+          bookmarks: true,
+          likes: true,
+          comments: true,
+        },
+      },
+      likes: {
+        where: { authorId: authId },
+      },
+      bookmarks: {
+        where: { authorId: authId },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!post) return null;
+
+  return {
+    ...post,
+    isLiked: !!authId && post.likes?.length > 0,
+    isBookmarked: !!authId && post.bookmarks?.length > 0,
+    isShared: !!authId && true,
+    _count: {
+      ...post._count,
+      shares: 0,
+    },
+  };
 };
 export const createPost = async (data: Partial<Post>) => {
   const auth = await checkAuthServer();
@@ -243,6 +296,7 @@ export const toggleLike = async (postId: string) => {
         issuerId: auth.id,
         recipientId: like.post.authorId,
         type: "LIKE",
+        postId: postId,
       });
     }
   }
@@ -270,6 +324,96 @@ export const toggleBookmark = async (postId: string) => {
     });
   }
   revalidatePath("/", "layout");
+};
+// comment and reply
+export const getCommentById = async (
+  commentId: string
+): Promise<CommentDataType | null> => {
+  return await prisma.comment.findFirst({
+    where: {
+      id: commentId,
+    },
+    include: {
+      author: true,
+      _count: {
+        select: {
+          replies: true,
+        },
+      },
+    },
+  });
+};
+export const createComment = async (data: Partial<Comment>) => {
+  const auth = await checkAuthServer();
+
+  const newComment = await prisma.comment.create({
+    data: {
+      ...data,
+      authorId: auth.id,
+      postId: data.postId as string,
+      parentCommentId: data.parentCommentId,
+    },
+    include: {
+      post: true,
+    },
+  });
+
+  const comment = await getCommentById(newComment.id);
+
+  let notifi;
+  if (newComment.post.authorId !== auth.id) {
+    notifi = await createNotification({
+      issuerId: auth.id,
+      recipientId: newComment.post.authorId,
+      type: "COMMENT",
+      postId: newComment.postId,
+    });
+  }
+
+  return { comment, notifi };
+};
+export const getCommentsByPostId = async (
+  postId: string
+): Promise<CommentDataType[]> => {
+  const user = await getOptionalAuth();
+  const authId = user?.id;
+
+  const comments = await prisma.comment.findMany({
+    where: {
+      postId,
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+      _count: {
+        select: {
+          replies: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return comments.map((post) => ({
+    ...post,
+    // isLiked: !!authId && post.likes?.length > 0,
+    // _count: {
+    //   ...post._count,
+    //   comments: 10,
+    //   shares: 40,
+    // },
+
+    // likes: undefined,
+    // bookmarks: undefined,
+  }));
 };
 
 // notification
@@ -301,7 +445,7 @@ const createNotification = async ({
 
   return notifi;
 };
-export const getNotifications = async ({}) => {
+export const getNotifications = async ({}): Promise<NotificationDataType[]> => {
   const auth = await checkAuthServer();
   return await prisma.notification.findMany({
     where: {

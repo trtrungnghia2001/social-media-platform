@@ -65,6 +65,11 @@ export type Bookmark = Prisma.BookmarkModel
  */
 export type Follow = Prisma.FollowModel
 /**
+ * Model Comment
+ * 
+ */
+export type Comment = Prisma.CommentModel
+/**
  * Model Notification
  * 
  */

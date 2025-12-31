@@ -37,7 +37,7 @@ const Layout = ({
                     unoptimized
                     className="rounded-full"
                   />
-                  <OnlineStatus status={onlineUsers.includes(user.id)} />
+                  <OnlineStatus userId={user.id} />
                 </div>
                 <div>
                   <h3>{user.name}</h3>

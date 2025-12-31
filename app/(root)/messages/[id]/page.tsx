@@ -29,7 +29,7 @@ const MessagesIdPage = () => {
               unoptimized
               className="rounded-full"
             />
-            <OnlineStatus status={onlineUsers.includes(userId)} />
+            <OnlineStatus userId={userId} />
           </div>
           <div>
             <h3>Mai Phuong Thuy</h3>

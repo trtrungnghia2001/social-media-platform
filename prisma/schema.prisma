@@ -99,12 +99,13 @@ model Comment {
     updatedAt DateTime @updatedAt
 
     authorId String
-    author   User    @relation(fields: [authorId], references: [id])
-    postId   String?
-    post     Post?   @relation(fields: [postId], references: [id])
+    author   User   @relation(fields: [authorId], references: [id])
+    postId   String
+    post     Post   @relation(fields: [postId], references: [id])
 
-    // parentCommentId String?
-    // parentComment Comment? @relation("",fields: [parentCommentId], references: [id])
+    parentCommentId String?
+    parentComment   Comment?  @relation("CommentToReplies", fields: [parentCommentId], references: [id])
+    replies         Comment[] @relation("CommentToReplies")
 }
 
 enum NotificationType {
