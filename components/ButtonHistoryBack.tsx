@@ -6,7 +6,7 @@ import { memo } from "react";
 const ButtonHistoryBack = () => {
   return (
     <button onClick={() => history.back()} className="btn-options">
-      <ArrowLeft size={16} />
+      <ArrowLeft size={20} />
     </button>
   );
 };

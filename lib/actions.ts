@@ -1,6 +1,7 @@
 "use server";
 import {
   Comment,
+  Message,
   NotificationType,
   Post,
   Prisma,
@@ -10,13 +11,14 @@ import prisma from "./prisma";
 import { auth } from "@clerk/nextjs/server";
 import {
   CommentDataType,
+  MessageDataType,
   NotificationDataType,
   PostDataType,
   UserDataType,
 } from "@/types";
 import { revalidatePath } from "next/cache";
 
-const pageSize = 5;
+const pageSize = 10;
 
 // auth
 const checkAuthServer = async () => {
@@ -43,24 +45,26 @@ export const getAuth = async () => {
 
 export const getAuthUnreadCounts = async () => {
   const auth = await checkAuthServer();
-  const [unreadNotifications] = await Promise.all([
+  const [unreadNotifications, unreadMessages] = await Promise.all([
     prisma.notification.count({
       where: {
         recipientId: auth.id,
         read: false,
       },
     }),
-    // prisma.message.count({
-    //   where: {
-    //     recipientId: auth.id,
-    //     read: false,
-    //   },
-    // }),
+    prisma.message.count({
+      where: {
+        receiverId: auth.id,
+        NOT: {
+          readBy: { has: auth.id },
+        },
+      },
+    }),
   ]);
 
   return {
     unreadNotifications,
-    unreadMessages: 0,
+    unreadMessages,
   };
 };
 
@@ -110,14 +114,42 @@ export const getUserByUsername = async (
           followings: true,
         },
       },
+      receivedMessages: {
+        where: {
+          senderId: authId,
+        },
+        include: { sender: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+      sentMessages: {
+        where: {
+          receiverId: authId,
+        },
+        include: { sender: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
     },
   });
 
   if (!getUser) return null;
 
+  const lastSent = getUser.sentMessages[0];
+  const lastReceived = getUser.receivedMessages[0];
+
+  let lastMessage = null;
+  if (lastSent && lastReceived) {
+    lastMessage =
+      lastSent.createdAt > lastReceived.createdAt ? lastSent : lastReceived;
+  } else {
+    lastMessage = lastSent || lastReceived || null;
+  }
+
   const formattedUser: UserDataType = {
     ...getUser,
     isFollowing: !!getUser && getUser.followers.length > 0,
+    lastMessage,
   };
 
   return formattedUser;
@@ -149,15 +181,48 @@ export const getUsers = async (q = ""): Promise<UserDataType[]> => {
           followings: true,
         },
       },
+      receivedMessages: {
+        where: {
+          senderId: authId,
+        },
+        include: { sender: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
+      sentMessages: {
+        where: {
+          receiverId: authId,
+        },
+        include: { sender: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
     },
 
-    take: 10,
+    take: pageSize,
   });
 
-  const formattedUsers: UserDataType[] = users.map((u) => ({
-    ...u,
-    isFollowing: !!user && u.followers.length > 0,
-  }));
+  const formattedUsers: UserDataType[] = users.map((u) => {
+    const lastSent = u.sentMessages[0];
+    const lastReceived = u.receivedMessages[0];
+
+    let lastMessage = null;
+    if (lastSent && lastReceived) {
+      lastMessage =
+        lastSent.createdAt > lastReceived.createdAt ? lastSent : lastReceived;
+    } else {
+      lastMessage = lastSent || lastReceived || null;
+    }
+
+    return {
+      ...u,
+      isFollowing: !!user && u.followers.length > 0,
+      lastMessage: lastMessage,
+      followers: undefined,
+      receivedMessages: undefined,
+      sentMessages: undefined,
+    };
+  });
 
   return formattedUsers;
 };
@@ -219,6 +284,10 @@ export const getPostInfinite = async ({
 }): Promise<{ posts: PostDataType[]; nextCursor: string | null }> => {
   const user = await getOptionalAuth();
   const authId = user?.id;
+
+  if (following && !authId) {
+    return { posts: [], nextCursor: null };
+  }
 
   const where: Prisma.PostWhereInput = {
     ...(username
@@ -566,4 +635,83 @@ export const markAllNotificationsAsRead = async () => {
   });
 
   revalidatePath("/", "layout");
+};
+// chat
+export const createMessage = async (
+  data: Partial<Message>
+): Promise<MessageDataType> => {
+  const auth = await checkAuthServer();
+
+  const newMess = await prisma.message.create({
+    data: {
+      ...data,
+      senderId: auth.id,
+      receiverId: data.receiverId as string,
+      readBy: [auth.id],
+    },
+    include: {
+      receiver: true,
+      sender: true,
+    },
+  });
+  return newMess;
+};
+export const getMessagesInfinite = async ({
+  partnerId,
+  cursor,
+}: {
+  partnerId: string;
+  cursor?: string;
+}): Promise<{
+  messages: MessageDataType[];
+  nextCursor: string | undefined;
+}> => {
+  const user = await checkAuthServer();
+
+  const messages = await prisma.message.findMany({
+    where: {
+      OR: [
+        { senderId: user.id, receiverId: partnerId },
+        { senderId: partnerId, receiverId: user.id },
+      ],
+    },
+    take: pageSize + 1,
+    cursor: cursor ? { id: cursor } : undefined,
+    skip: cursor ? 1 : 0,
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      sender: true,
+    },
+  });
+
+  let nextCursor: string | undefined = undefined;
+  if (messages.length > pageSize) {
+    const nextItem = messages.pop();
+    nextCursor = nextItem?.id;
+  }
+
+  return {
+    messages: messages.reverse(),
+    nextCursor,
+  };
+};
+export const readMessages = async (userId: string) => {
+  const auth = await checkAuthServer();
+
+  return await prisma.message.updateMany({
+    where: {
+      senderId: userId,
+      receiverId: auth.id,
+      NOT: {
+        readBy: { has: auth.id },
+      },
+    },
+    data: {
+      readBy: {
+        set: [auth.id, userId],
+      },
+    },
+  });
 };

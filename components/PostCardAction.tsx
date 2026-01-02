@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 import { useSocketContext } from "@/contexts/SocketContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { NotificationType } from "@/app/generated/prisma/enums";
+import { NotificationType } from "@/app/generated/prisma";
 import PostOptions from "./PostOptions";
 
 type ActionType = keyof typeof NotificationType | "BOOKMARK";

@@ -23,6 +23,7 @@ export const CommentProvider = ({
   children,
 }: Readonly<{ children: ReactNode }>) => {
   const [allComments, setAllComments] = useState<CommentDataType[]>([]);
+
   const getReplies = useCallback(
     (commentId: string) => {
       return allComments.filter(
@@ -38,14 +39,11 @@ export const CommentProvider = ({
     );
   }, [allComments]);
 
-  const deleteCommentId = useCallback(
-    (commentId: string) => {
-      setAllComments((prev) =>
-        prev.filter((comment) => comment.id !== commentId)
-      );
-    },
-    [allComments]
-  );
+  const deleteCommentId = useCallback((commentId: string) => {
+    setAllComments((prev) =>
+      prev.filter((comment) => comment.id !== commentId)
+    );
+  }, []);
 
   return (
     <CommentContext.Provider

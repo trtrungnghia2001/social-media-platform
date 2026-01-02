@@ -10,7 +10,7 @@ import { toggleFollow } from "@/lib/actions";
 import Link from "next/link";
 
 type ProfileActionsType = ComponentProps<"div"> & {
-  auth: User;
+  auth: User | null;
   user: User;
   isFollowing: boolean;
 };

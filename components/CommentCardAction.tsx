@@ -1,7 +1,7 @@
 "use client";
 import { CommentDataType } from "@/types";
 import { memo } from "react";
-import { MessageCircle, Heart, Trash } from "lucide-react";
+import { MessageCircle, Trash } from "lucide-react";
 import { useCommentContext } from "@/contexts/CommentContext";
 import { deleteCommentById } from "@/lib/actions";
 import { useAuthContext } from "@/contexts/AuthContext";
@@ -23,9 +23,6 @@ const CommentCardAction = ({
         </button>
         {auth?.id === comment.authorId && (
           <>
-            <button>
-              <Heart size={16} />
-            </button>
             <button
               onClick={async () => {
                 deleteCommentId(comment.id);

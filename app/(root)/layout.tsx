@@ -19,7 +19,7 @@ const LayoutRoot = ({
 
   return (
     <div className="flex items-start gap-6 max-w-7xl w-full mx-auto">
-      <SidebarLeft className="hidden sm:block" />
+      <SidebarLeft className="hidden md:block" />
       <main className="flex-1 border-x border-border min-h-screen">
         {children}
       </main>

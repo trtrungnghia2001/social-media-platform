@@ -34,8 +34,7 @@ app.prepare().then(() => {
     });
 
     // notifications
-    socket.on("sendNotification", async (value) => {
-      const { data, recipientId } = value;
+    socket.on("sendNotification", async ({ data, recipientId }) => {
       const recipientIdSocket = onlineUsers.get(recipientId);
 
       if (recipientIdSocket) {
@@ -43,6 +42,18 @@ app.prepare().then(() => {
       }
     });
     // chat
+    socket.on("send-message", ({ receiverId, mess }) => {
+      const recipientIdSocket = onlineUsers.get(receiverId);
+      if (recipientIdSocket) {
+        io.to(recipientIdSocket).emit("receiver-message", mess);
+      }
+    });
+    socket.on("mark-as-read", ({ senderId, receiverId }) => {
+      const recipientIdSocket = onlineUsers.get(receiverId);
+      if (recipientIdSocket) {
+        io.to(recipientIdSocket).emit("message-read", { readBy: senderId });
+      }
+    });
   });
 
   httpServer

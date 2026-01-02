@@ -1,5 +1,5 @@
 generator client {
-    provider = "prisma-client"
+    provider = "prisma-client-js" // Sửa lại provider chuẩn
     output   = "../app/generated/prisma"
 }
 
@@ -7,6 +7,7 @@ datasource db {
     provider = "postgresql"
 }
 
+// --- USER ---
 model User {
     id            String   @id @default(cuid())
     clerkId       String   @unique
@@ -22,6 +23,7 @@ model User {
     posts     Post[]
     likes     Like[]
     bookmarks Bookmark[]
+    comments  Comment[]
 
     receivedNotifications Notification[] @relation("NotificationRecipient")
     issuedNotifications   Notification[] @relation("NotificationIssuer")
@@ -30,65 +32,70 @@ model User {
     followings Follow[] @relation("Following")
     followers  Follow[] @relation("Follower")
 
-    comments Comment[]
-}
+    sentMessages     Message[] @relation("MessageSender")
+    receivedMessages Message[] @relation("MessageReceiver")
 
-// post
-model Post {
-    id       String  @id @default(cuid())
-    mediaUrl String?
-    text     String?
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    authorId String
-    author   User   @relation(fields: [authorId], references: [id])
-
-    likes     Like[]
-    bookmarks Bookmark[]
-
-    notifications Notification[]
-
-    comments Comment[]
-}
-
-model Like {
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    authorId String
-    author   User   @relation(fields: [authorId], references: [id])
-
-    postId String
-    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-    @@id([authorId, postId])
-}
-
-model Bookmark {
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    authorId String
-    author   User   @relation(fields: [authorId], references: [id])
-
-    postId String
-    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-    @@id([authorId, postId])
+    @@index([username])
 }
 
 model Follow {
     followerId String
-    follower   User   @relation("Following", fields: [followerId], references: [id])
+    follower   User   @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
 
     followingId String
-    following   User   @relation("Follower", fields: [followingId], references: [id])
+    following   User   @relation("Follower", fields: [followingId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
 
     @@id([followerId, followingId])
+    @@index([followerId])
+    @@index([followingId])
+}
+
+// --- POST ---
+model Post {
+    id        String   @id @default(cuid())
+    mediaUrl  String?
+    text      String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    authorId String
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    likes         Like[]
+    bookmarks     Bookmark[]
+    notifications Notification[]
+    comments      Comment[]
+
+    @@index([authorId, createdAt(sort: Desc)])
+    @@index([createdAt(sort: Desc)])
+}
+
+model Like {
+    authorId String
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    postId String
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    @@id([authorId, postId])
+    @@index([postId])
+}
+
+model Bookmark {
+    authorId String
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    postId String
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    @@id([authorId, postId])
+    @@index([postId])
 }
 
 model Comment {
@@ -99,15 +106,19 @@ model Comment {
     updatedAt DateTime @updatedAt
 
     authorId String
-    author   User   @relation(fields: [authorId], references: [id])
-    postId   String
-    post     Post   @relation(fields: [postId], references: [id])
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    postId String
+    post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
     parentCommentId String?
     parentComment   Comment?  @relation("CommentToReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
     replies         Comment[] @relation("CommentToReplies")
+
+    @@index([postId, createdAt(sort: Asc)])
 }
 
+// --- NOTIFICATION ---
 enum NotificationType {
     LIKE
     COMMENT
@@ -130,8 +141,29 @@ model Notification {
 
     postId String?
     post   Post?   @relation(fields: [postId], references: [id], onDelete: Cascade)
-    userId String?
-    user   User?   @relation(fields: [userId], references: [id])
 
-    @@index([recipientId, createdAt])
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([recipientId, read, createdAt(sort: Desc)])
+}
+
+// --- CHAT 1-1 ---
+model Message {
+    id       String   @id @default(cuid())
+    text     String?
+    mediaUrl String?
+    readBy   String[] @default([])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    senderId   String
+    receiverId String
+
+    sender   User @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+    receiver User @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+    @@index([senderId, receiverId, createdAt(sort: Desc)])
+    @@index([receiverId, senderId, createdAt(sort: Desc)])
 }

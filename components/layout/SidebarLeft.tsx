@@ -22,7 +22,7 @@ import { useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import { IMAGE_DEFAULT } from "@/helpers/constants";
 import { useThemeContext } from "@/contexts/ThemeContext";
-import { ComponentProps } from "react";
+import { ComponentProps, useMemo } from "react";
 import { useSocketContext } from "@/contexts/SocketContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 
@@ -41,57 +41,60 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
   const { auth } = useAuthContext();
   const { signOut } = useClerk();
 
-  const navItems: NavItemType[] = [
-    {
-      title: "Home",
-      path: "/",
-      icon: Home,
-    },
-    {
-      title: "Explore",
-      path: "/explore",
-      icon: Search,
-    },
-    {
-      title: "Notifications",
-      path: "/notifications",
-      icon: Bell,
-      requiresAuth: true,
-      count: counts.unreadNotifications,
-    },
-    {
-      title: "Messages",
-      path: "/messages",
-      icon: MessageCircle,
-      requiresAuth: true,
-    },
-    {
-      title: "Grok",
-      path: "/grok",
-      icon: Brain,
-    },
-    {
-      title: "Communities",
-      path: "/communities",
-      icon: Users,
-    },
-    {
-      title: "Profile",
-      path: "/user/" + auth?.username,
-      icon: User,
-      requiresAuth: true,
-    },
-    {
-      title: "More",
-      path: "/more",
-      icon: Ellipsis,
-    },
-  ];
+  const navItems: NavItemType[] = useMemo(() => {
+    return [
+      {
+        title: "Home",
+        path: "/",
+        icon: Home,
+      },
+      {
+        title: "Explore",
+        path: "/explore",
+        icon: Search,
+      },
+      {
+        title: "Notifications",
+        path: "/notifications",
+        icon: Bell,
+        requiresAuth: true,
+        count: counts.unreadNotifications,
+      },
+      {
+        title: "Messages",
+        path: "/messages",
+        icon: MessageCircle,
+        requiresAuth: true,
+        count: counts.unreadMessages,
+      },
+      {
+        title: "Gemini",
+        path: "/gemini",
+        icon: Brain,
+      },
+      {
+        title: "Communities",
+        path: "/communities",
+        icon: Users,
+      },
+      {
+        title: "Profile",
+        path: "/user/" + auth?.username,
+        icon: User,
+        requiresAuth: true,
+      },
+      {
+        title: "More",
+        path: "/more",
+        icon: Ellipsis,
+      },
+    ];
+  }, [counts, auth]);
 
   return (
     <aside
       className={clsx(
-        `w-48 md:w-3xs h-screen bg-background sticky top-0 pt-4`,
+        `w-3xs h-screen bg-background sticky top-0 pt-4`,
         className
       )}
       {...props}
@@ -146,7 +149,11 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
           <li>
             {auth && (
               <button
-                onClick={() => signOut()}
+                onClick={() => {
+                  if (window.confirm("Signout")) {
+                    signOut();
+                  }
+                }}
                 className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
               >
                 <LogOut size={18} />

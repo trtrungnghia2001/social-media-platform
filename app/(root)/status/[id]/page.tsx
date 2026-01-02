@@ -23,8 +23,6 @@ const StatusPage = async ({ params }: { params: Promise<{ id: string }> }) => {
       </div>
       <PostCard post={post} />
       <CommentForm postId={id} />
-      {/* <div className="pt-4 border-t border-t-border">
-      </div> */}
       <CommentList comments={comments} />
     </div>
   );

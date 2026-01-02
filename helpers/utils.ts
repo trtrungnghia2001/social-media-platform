@@ -1,4 +1,4 @@
-import { NotificationType } from "@/app/generated/prisma/enums";
+import { NotificationType } from "@/app/generated/prisma";
 
 export function formatTimeAgo(date: Date): string {
   const now = new Date();

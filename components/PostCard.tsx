@@ -13,14 +13,15 @@ const PostCard = ({ post }: { post: PostDataType }) => {
 
   return (
     <div className="flex items-start gap-4 border-t border-t-border p-4 hover:bg-secondaryBg transition-all">
-      <Link href={authorUrl} className="relative">
+      <Link href={authorUrl} className="relative inline-block">
         <Image
           alt="avatar"
           src={post.author.avatarUrl || IMAGE_DEFAULT.AVATAR}
           loading="lazy"
           width={40}
           height={40}
-          className="img rounded-full overflow-hidden"
+          unoptimized
+          className="img rounded-full overflow-hidden aspect-square"
         />
         <OnlineStatus userId={post.author.id} />
       </Link>

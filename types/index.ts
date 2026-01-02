@@ -62,4 +62,11 @@ export type UserDataType = Prisma.UserGetPayload<{
   };
 }> & {
   isFollowing: boolean;
+  lastMessage?: MessageDataType;
 };
+
+export type MessageDataType = Prisma.MessageGetPayload<{
+  include: {
+    sender: true;
+  };
+}>;

@@ -3,7 +3,7 @@ import Feed from "@/components/Feed";
 import OnlineStatus from "@/components/OnlineStatus";
 import ProfileActions from "@/components/ProfileActions";
 import { IMAGE_DEFAULT } from "@/helpers/constants";
-import { getAuth, getUserByUsername } from "@/lib/actions";
+import { getOptionalAuth, getUserByUsername } from "@/lib/actions";
 import { CalendarDays, LinkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +16,7 @@ const ProfilePage = async ({
 }) => {
   const { username } = await params;
   const user = await getUserByUsername(username);
-  const auth = await getAuth();
+  const auth = await getOptionalAuth();
 
   if (!user) return notFound();
 

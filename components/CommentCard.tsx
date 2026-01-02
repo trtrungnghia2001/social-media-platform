@@ -28,7 +28,7 @@ const CommentCard = ({ comment }: { comment: CommentDataType }) => {
             loading="lazy"
             width={40}
             height={40}
-            className="img rounded-full overflow-hidden"
+            className="img aspect-square rounded-full overflow-hidden"
           />
           <OnlineStatus userId={comment.author.id} />
         </Link>
@@ -64,7 +64,7 @@ const CommentCard = ({ comment }: { comment: CommentDataType }) => {
               width={256}
               height={256}
               unoptimized
-              className="h-auto rounded-lg"
+              className="h-auto rounded-lg img"
             />
           )}
           {/* action */}
@@ -76,7 +76,9 @@ const CommentCard = ({ comment }: { comment: CommentDataType }) => {
       </div>
       {/* form */}
       {openForm && (
-        <CommentForm postId={comment.postId} parentCommentId={comment.id} />
+        <div className="pl-14">
+          <CommentForm postId={comment.postId} parentCommentId={comment.id} />
+        </div>
       )}
       {/* replies */}
       {getReplies.length > 0 && (

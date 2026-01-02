@@ -1,14 +1,17 @@
 "use client";
 
+import { useAuthContext } from "@/contexts/AuthContext";
+import { MessageDataType } from "@/types";
 import clsx from "clsx";
 import Image from "next/image";
 import { useMemo } from "react";
 
-const MessageCard = () => {
+const MessageCard = ({ message }: { message: MessageDataType }) => {
+  const { auth } = useAuthContext();
   const owner = useMemo(() => {
-    const randomInt = Math.random();
-    return Math.floor(randomInt * 10) % 4 === 0;
-  }, []);
+    return auth?.id === message.senderId;
+  }, [auth, message]);
+
   return (
     <div
       className={clsx(
@@ -16,23 +19,21 @@ const MessageCard = () => {
         owner ? `items-end` : `items-start`
       )}
     >
-      {true && (
+      {message.text && (
         <div
           className={clsx(
             `max-w-[45%] whitespace-break-spaces rounded-full shadow px-4 py-2`,
             owner ? `bg-slate-900 text-white` : `bg-slate-200 text-slate-900`
           )}
           dangerouslySetInnerHTML={{
-            __html: `Hello, I&apos;m Nghia. I have sex :))`,
+            __html: message.text,
           }}
         ></div>
       )}
-      {true && (
+      {message.mediaUrl && (
         <Image
-          alt="avatar"
-          src={
-            "https://pbs.twimg.com/profile_images/2001914859773202432/Bsabgg43_400x400.jpg"
-          }
+          alt="mediaUrl"
+          src={message.mediaUrl}
           loading="lazy"
           width={256}
           height={256}
@@ -40,7 +41,9 @@ const MessageCard = () => {
           className="max-w-[45%] rounded-lg"
         />
       )}
-      <p className="text-13 text-secondary">{new Date().toLocaleString()}</p>
+      <p className="text-13 text-secondary">
+        {new Date(message.createdAt).toLocaleString()}
+      </p>
     </div>
   );
 };

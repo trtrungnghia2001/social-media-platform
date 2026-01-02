@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // Lấy các headers xác thực từ Clerk gửi sang
+  // 1. Lấy headers xác thực
   const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
@@ -22,14 +22,14 @@ export async function POST(req: Request) {
     return new Response("Error occured -- no svix headers", { status: 400 });
   }
 
-  // Lấy body dữ liệu
+  // 2. Lấy body dữ liệu
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
-  // Xác thực gói tin
   const wh = new Webhook(WEBHOOK_SECRET);
   let evt: WebhookEvent;
 
+  // 3. Xác thực gói tin
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -41,36 +41,55 @@ export async function POST(req: Request) {
     return new Response("Error occured", { status: 400 });
   }
 
-  // Xử lý logic đồng bộ vào Prisma
   const eventType = evt.type;
-  console.log({ eventType });
 
+  // 4. Xử lý logic đồng bộ
   if (eventType === "user.created" || eventType === "user.updated") {
-    const { id, first_name, last_name, image_url, username } = evt.data;
+    const { id, first_name, last_name, image_url, username, email_addresses } =
+      evt.data;
 
-    // Lưu hoặc cập nhật User vào DB của bạn
-    const name = `${first_name} ${last_name}` as string;
+    // Fix: Gom tên gọn gàng, ưu tiên đầy đủ, không có thì để User
+    const displayName =
+      [first_name, last_name].filter(Boolean).join(" ") || "User";
 
-    await prisma.user.upsert({
-      where: { clerkId: id },
-      update: {
-        name: name,
-        username: username as string,
-        avatarUrl: image_url,
-      },
-      create: {
-        clerkId: id,
-        name: name,
-        username: username as string,
-        avatarUrl: image_url,
-      },
-    });
+    // Fix username: Loại bỏ mọi ký tự @ nếu lỡ có, và tạo fallback an toàn
+    const primaryEmail = email_addresses?.[0]?.email_address;
+    let finalUsername = username || primaryEmail?.split("@")[0] || id.slice(-8);
+
+    // Đảm bảo không có dấu @ trong username lưu vào DB
+    finalUsername = finalUsername.replace("@", "");
+
+    try {
+      await prisma.user.upsert({
+        where: { clerkId: id },
+        update: {
+          name: displayName,
+          username: finalUsername,
+          avatarUrl: image_url,
+        },
+        create: {
+          clerkId: id,
+          name: displayName,
+          username: finalUsername,
+          avatarUrl: image_url,
+        },
+      });
+      console.log(`User ${id} ${eventType} successfully`);
+    } catch (error) {
+      console.error("Prisma Webhook Error:", error);
+      return new Response("Database Error", { status: 500 });
+    }
   }
+
   if (eventType === "user.deleted") {
-    await prisma.user.delete({
-      where: { clerkId: evt.data.id },
-    });
+    try {
+      await prisma.user.delete({
+        where: { clerkId: evt.data.id },
+      });
+    } catch (error) {
+      console.error("Prisma Delete Error:", error);
+    }
   }
 
-  return new Response("", { status: 200 });
+  return new Response("Webhook processed", { status: 200 });
 }

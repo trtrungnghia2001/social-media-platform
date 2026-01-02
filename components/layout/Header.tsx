@@ -40,6 +40,7 @@ const Header = () => {
   return (
     <>
       <header className="z-50 sticky top-0 backdrop-blur-xl">
+        {/* top */}
         <div className="md:hidden p-4 flex items-center justify-between">
           <div>
             {auth && (
@@ -63,6 +64,7 @@ const Header = () => {
             <Grip />
           </button>
         </div>
+        {/* navs */}
         <div className="grid grid-cols-2">
           {tabs.map((tab) => (
             <Link

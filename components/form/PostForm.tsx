@@ -73,8 +73,8 @@ const PostForm = () => {
 
   const { auth } = useAuthContext();
 
-  const [state, formAction, isLoading] = useActionState(
-    async (state: unknown, formData: FormData) => {
+  const [_, formAction, isLoading] = useActionState(
+    async (_: unknown, formData: FormData) => {
       const text = formData.get("text") as string;
       const file = formData.get("file") as File | null;
 
@@ -102,6 +102,8 @@ const PostForm = () => {
     },
     null
   );
+
+  if (!auth) return null;
 
   return (
     <div className="p-4 flex items-start gap-4">

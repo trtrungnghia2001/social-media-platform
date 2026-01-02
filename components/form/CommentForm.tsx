@@ -128,6 +128,8 @@ const CommentForm = ({
     null
   );
 
+  if (!auth) return null;
+
   return (
     <div className="border-t border-t-border p-4 flex items-start gap-4">
       <Link href={`/user/` + auth?.username}>
