@@ -1,5 +1,5 @@
 "use client";
-import { ComponentProps, memo, useMemo } from "react";
+import { ComponentProps, memo, useEffect, useMemo, useState } from "react";
 import InputSearch from "../form/InputSearch";
 import OnlineStatus from "../OnlineStatus";
 import clsx from "clsx";
@@ -12,14 +12,23 @@ import { useParams } from "next/navigation";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Check, CheckCheck } from "lucide-react";
 import { UserDataType } from "@/types";
+import { useDebounce } from "use-debounce";
+import { useSocketContext } from "@/contexts/SocketContext";
 
 const MessageSidebarLeft = ({
   className,
   ...props
 }: ComponentProps<"aside">) => {
+  const [text, setText] = useState("");
+  const [value] = useDebounce(text, 1000);
+  const { setSearchUser } = useSocketContext();
+  useEffect(() => {
+    setSearchUser(value);
+  }, [value, setSearchUser]);
+
   const { data: users } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => await getUsers(),
+    queryKey: ["users", value],
+    queryFn: async () => await getUsers(value),
   });
 
   return (
@@ -31,9 +40,9 @@ const MessageSidebarLeft = ({
       {...props}
     >
       <div className="px-2">
-        <InputSearch />
+        <InputSearch value={text} onChange={(e) => setText(e.target.value)} />
       </div>
-      <ul className="overflow-y-auto scrollbar-beauty">
+      <ul className="flex-1 overflow-y-auto scrollbar-beauty">
         {users?.map((user) => (
           <ContactUser key={user.id} user={user} />
         ))}

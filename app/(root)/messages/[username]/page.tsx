@@ -15,7 +15,7 @@ const PageDetailPage = async ({
   if (!user) return notFound();
 
   return (
-    <div className="flex flex-col overflow-hidden h-screen">
+    <div className="flex flex-col overflow-hidden h-full">
       <MessageHeader user={user} />
       <MessageList />
       <MessageForm />

@@ -16,7 +16,12 @@ const Provider = ({
 }>) => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ClerkProvider>
+      <ClerkProvider
+        signInUrl="/sign-in"
+        signUpUrl="/sign-up"
+        signInForceRedirectUrl={"/"}
+        signUpFallbackRedirectUrl={`/`}
+      >
         <AuthProvider>
           <SocketProvider>
             <CommentProvider>

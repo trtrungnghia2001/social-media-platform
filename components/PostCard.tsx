@@ -43,12 +43,13 @@ const PostCard = ({ post }: { post: PostDataType }) => {
           </button>
         </div>
         {/* content */}
-        <Link href={`/status/` + post.id} className="block space-y-4">
+        <div className="space-y-4">
           {post.text && (
-            <div
+            <Link
+              href={`/status/` + post.id}
               dangerouslySetInnerHTML={{ __html: post.text }}
-              className="whitespace-break-spaces"
-            ></div>
+              className="whitespace-break-spaces block"
+            ></Link>
           )}
           {post.mediaUrl && (
             <>
@@ -72,7 +73,7 @@ const PostCard = ({ post }: { post: PostDataType }) => {
               )}
             </>
           )}
-        </Link>
+        </div>
         {/* action */}
         <PostCardAction post={post} />
       </div>

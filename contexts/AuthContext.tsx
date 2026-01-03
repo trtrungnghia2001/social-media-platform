@@ -1,6 +1,6 @@
 "use client";
 import { User } from "@/app/generated/prisma/client";
-import { getOptionalAuth } from "@/lib/actions";
+import { syncAndGetAuth } from "@/lib/actions";
 import { useUser } from "@clerk/nextjs";
 import {
   createContext,
@@ -27,19 +27,43 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({
   children,
 }: Readonly<{ children: ReactNode }>) => {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const [auth, setAuth] = useState<User | null>(null);
 
   useEffect(() => {
-    (async () => {
-      if (isSignedIn) {
-        const user = await getOptionalAuth();
-        setAuth(user);
-      } else {
+    let isMounted = true;
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    const fetchUser = async () => {
+      if (!isSignedIn || !user) {
         setAuth(null);
+        return;
       }
-    })();
-  }, [isSignedIn]);
+
+      console.log("Đang lấy data user từ DB...");
+      const dbUser = await syncAndGetAuth(JSON.parse(JSON.stringify(user)));
+
+      if (dbUser) {
+        if (isMounted) setAuth(dbUser);
+      } else if (retryCount < maxRetries) {
+        // Nếu chưa thấy user (có thể do Webhook chậm), đợi 1.5s rồi thử lại
+        retryCount++;
+        console.log(`Chưa thấy user trong DB, thử lại lần ${retryCount}...`);
+        setTimeout(fetchUser, 1500);
+      } else {
+        // Sau 3 lần vẫn không thấy -> Có thể lỗi Webhook thật hoặc cần Onboarding
+        if (isMounted) setAuth(null);
+      }
+    };
+
+    fetchUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isSignedIn, user]);
+
   useEffect(() => {
     if (auth && !socket.connected) {
       socket.auth = {

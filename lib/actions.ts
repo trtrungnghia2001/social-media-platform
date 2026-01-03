@@ -8,7 +8,7 @@ import {
   User,
 } from "@/app/generated/prisma/client";
 import prisma from "./prisma";
-import { auth } from "@clerk/nextjs/server";
+import { auth, type User as ClerkUser } from "@clerk/nextjs/server";
 import {
   CommentDataType,
   MessageDataType,
@@ -36,7 +36,37 @@ const checkAuthServer = async () => {
 
   return user;
 };
+export async function syncAndGetAuth(clerkUser: ClerkUser | null) {
+  const { userId } = await auth();
+  if (!userId) return null;
 
+  let dbUser = await prisma.user.findUnique({
+    where: { clerkId: userId },
+  });
+
+  // Nếu chưa có (Webhook chậm/lỗi), tự tạo luôn từ data Clerk gửi xuống
+  if (!dbUser && clerkUser) {
+    const displayName =
+      [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") ||
+      "User";
+    const username =
+      clerkUser.username ||
+      clerkUser.emailAddresses[0]?.emailAddress.split("@")[0] ||
+      userId.slice(-8);
+
+    dbUser = await prisma.user.create({
+      data: {
+        clerkId: userId,
+        name: displayName,
+        username: username.replace("@", ""),
+        avatarUrl: clerkUser.imageUrl,
+      },
+    });
+    console.log("✅ Auto-sync: Created missing user in DB");
+  }
+
+  return dbUser;
+}
 export const getAuth = async () => {
   const auth = await checkAuthServer();
 
@@ -198,8 +228,8 @@ export const getUsers = async (q = ""): Promise<UserDataType[]> => {
         take: 1,
       },
     },
-
-    take: pageSize,
+    orderBy: { createdAt: "desc" },
+    take: 30,
   });
 
   const formattedUsers: UserDataType[] = users.map((u) => {

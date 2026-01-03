@@ -33,6 +33,7 @@ type SocketContextType = {
   setCurrentUser: Dispatch<SetStateAction<UserDataType | null>>;
   currentUser: UserDataType | null;
   handleSendMessage: (mess: MessageDataType) => void;
+  setSearchUser: Dispatch<SetStateAction<string>>;
 };
 
 // context
@@ -74,62 +75,13 @@ export const SocketProvider = ({
         position: "bottom-right",
       });
     };
-    const handleReceiverMessage = (mess: MessageDataType) => {
-      setMessages((prev) => [...prev, mess]);
-
-      setCounts((prev) => ({
-        ...prev,
-        unreadMessages: prev.unreadMessages + 1,
-      }));
-
-      const messages = `${mess.sender.name} sent you a message`;
-
-      playNotificationSound();
-
-      toast(messages, {
-        position: "bottom-left",
-      });
-
-      // cap nhat tin nhan moi
-      queryClient.setQueryData(["users"], (oldData: UserDataType[] | null) => {
-        if (!oldData) return oldData;
-        return oldData.map((item) =>
-          item.id === mess.senderId ? { ...item, lastMessage: mess } : item
-        );
-      });
-    };
-
-    // cap nhat lai users khi ho doc tin nhan
-    const handleReadMessage = ({ readBy }: { readBy: string }) => {
-      queryClient.setQueryData(["users"], (oldData: UserDataType[] | null) => {
-        if (!oldData) return oldData;
-
-        return oldData.map((u) =>
-          u.id === readBy
-            ? {
-                ...u,
-                lastMessage: u.lastMessage
-                  ? {
-                      ...u.lastMessage,
-                      readBy: [...(u.lastMessage?.readBy as string[]), readBy],
-                    }
-                  : u.lastMessage,
-              }
-            : u
-        );
-      });
-    };
 
     socket.on("getOnlineUsers", handleOnlineUsers);
     socket.on("sendNotification", handleNotification);
-    socket.on("receiver-message", handleReceiverMessage);
-    socket.on("message-read", handleReadMessage);
 
     return () => {
       socket.off("getOnlineUsers", handleOnlineUsers);
       socket.off("sendNotification", handleNotification);
-      socket.off("receiver-message", handleReceiverMessage);
-      socket.off("message-read", handleReadMessage);
     };
   }, []);
 
@@ -172,42 +124,117 @@ export const SocketProvider = ({
     socket.emit("send-message", { receiverId: currentUser.id, mess });
     console.log({ mess });
 
-    queryClient.setQueryData(["users"], (oldData: UserDataType[] | null) => {
-      if (!oldData) return oldData;
-      return oldData.map((item) =>
-        item.id === mess.receiverId ? { ...item, lastMessage: mess } : item
-      );
-    });
+    queryClient.setQueryData(
+      ["users", searchUser],
+      (oldData: UserDataType[] | null) => {
+        if (!oldData) return oldData;
+        return oldData.map((item) =>
+          item.id === mess.receiverId ? { ...item, lastMessage: mess } : item
+        );
+      }
+    );
   };
+  const [searchUser, setSearchUser] = useState("");
 
   // cap nhat users tin nhan moi va gui thong bao cho currentUser
   //  biet minh da doc tin nhan
   useEffect(() => {
     if (!currentUser) return;
 
-    queryClient.setQueryData(["users"], (oldData: UserDataType[] | null) => {
-      if (!oldData) return oldData;
+    queryClient.setQueryData(
+      ["users", searchUser],
+      (oldData: UserDataType[] | null) => {
+        if (!oldData) return oldData;
 
-      return oldData.map((u) =>
-        u.id === currentUser.id
-          ? {
-              ...u,
-              lastMessage: u.lastMessage
-                ? {
-                    ...u.lastMessage,
-                    readBy: [...(u.lastMessage?.readBy as string[]), auth?.id],
-                  }
-                : u.lastMessage,
-            }
-          : u
-      );
-    });
+        return oldData.map((u) =>
+          u.id === currentUser.id
+            ? {
+                ...u,
+                lastMessage: u.lastMessage
+                  ? {
+                      ...u.lastMessage,
+                      readBy: [
+                        ...(u.lastMessage?.readBy as string[]),
+                        auth?.id,
+                      ],
+                    }
+                  : u.lastMessage,
+              }
+            : u
+        );
+      }
+    );
 
     socket.emit("mark-as-read", {
       senderId: auth?.id,
       receiverId: currentUser.id,
     });
-  }, [currentUser, messages]);
+  }, [currentUser, messages, searchUser, auth]);
+
+  useEffect(() => {
+    const handleReceiverMessage = (mess: MessageDataType) => {
+      setMessages((prev) => [...prev, mess]);
+
+      setCounts((prev) => ({
+        ...prev,
+        unreadMessages: prev.unreadMessages + 1,
+      }));
+
+      const messages = `${mess.sender.name} sent you a message`;
+
+      playNotificationSound();
+
+      toast(messages, {
+        position: "bottom-left",
+      });
+
+      // cap nhat tin nhan moi
+      queryClient.setQueryData(
+        ["users", searchUser],
+        (oldData: UserDataType[] | null) => {
+          if (!oldData) return oldData;
+          return oldData.map((item) =>
+            item.id === mess.senderId ? { ...item, lastMessage: mess } : item
+          );
+        }
+      );
+    };
+
+    // cap nhat lai users khi ho doc tin nhan
+    const handleReadMessage = ({ readBy }: { readBy: string }) => {
+      queryClient.setQueryData(
+        ["users", searchUser],
+        (oldData: UserDataType[] | null) => {
+          if (!oldData) return oldData;
+
+          return oldData.map((u) =>
+            u.id === readBy
+              ? {
+                  ...u,
+                  lastMessage: u.lastMessage
+                    ? {
+                        ...u.lastMessage,
+                        readBy: [
+                          ...(u.lastMessage?.readBy as string[]),
+                          readBy,
+                        ],
+                      }
+                    : u.lastMessage,
+                }
+              : u
+          );
+        }
+      );
+    };
+
+    socket.on("receiver-message", handleReceiverMessage);
+    socket.on("message-read", handleReadMessage);
+
+    return () => {
+      socket.off("receiver-message", handleReceiverMessage);
+      socket.off("message-read", handleReadMessage);
+    };
+  }, [searchUser]);
 
   return (
     <SocketContext.Provider
@@ -221,6 +248,7 @@ export const SocketProvider = ({
         handleSendMessage,
         setCurrentUser,
         currentUser,
+        setSearchUser,
       }}
     >
       {children}

@@ -16,10 +16,16 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
-      //
+      // url mockdata
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "https://storage.googleapis.com",
         port: "",
         pathname: "/**",
       },

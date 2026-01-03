@@ -21,9 +21,9 @@ const Layout = ({
   }, [username, setCurrentUser]);
 
   return (
-    <div className="h-screen flex items-stretch overflow-y-hidden">
+    <div className="h-[calc(100vh-56px)] md:h-screen flex items-stretch overflow-y-hidden">
       <MessageSidebarLeft
-        className={clsx(username ? "hidden xl:block" : "block")}
+        className={clsx(username ? "hidden xl:flex" : "flex")}
       />
 
       <section

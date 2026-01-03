@@ -114,7 +114,7 @@ const SidebarLeft = ({ className, onCloseSidebar, ...props }: SidebarLeft) => {
               <li key={nav.title}>
                 <Link
                   href={nav.path}
-                  onMouseDown={(e) => {
+                  onMouseDown={() => {
                     onCloseSidebar?.();
                   }}
                   className={clsx(
@@ -170,6 +170,9 @@ const SidebarLeft = ({ className, onCloseSidebar, ...props }: SidebarLeft) => {
             {!auth && (
               <Link
                 href={`/sign-in`}
+                onMouseDown={() => {
+                  onCloseSidebar?.();
+                }}
                 className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
               >
                 <LogIn size={18} />

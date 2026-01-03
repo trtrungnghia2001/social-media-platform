@@ -9,7 +9,7 @@ import { RiLoader2Fill } from "react-icons/ri";
 export default function SignUpPage() {
   return (
     <div className="grid min-h-screen place-items-center px-4">
-      <SignUp.Root>
+      <SignUp.Root path="/sign-up">
         {/* BƯỚC 1: ĐIỀN THÔNG TIN ĐĂNG KÝ */}
         <SignUp.Step
           name="start"

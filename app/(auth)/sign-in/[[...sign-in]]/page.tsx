@@ -8,7 +8,7 @@ import { RiLoader2Fill } from "react-icons/ri";
 export default function SignInPage() {
   return (
     <div className="grid min-h-screen place-items-center px-4">
-      <SignIn.Root>
+      <SignIn.Root path="/sign-in">
         <SignIn.Step
           name="start"
           className="w-full max-w-md space-y-6 rounded-2xl border border-border p-8 shadow-xl"

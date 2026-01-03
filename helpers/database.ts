@@ -2,6 +2,7 @@ import "dotenv/config";
 import prisma from "../lib/prisma";
 
 const PHOTO_URL = "https://images.unsplash.com";
+const VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample";
 
 async function addUsers() {
   console.log("Seeding users...");
@@ -179,32 +180,43 @@ async function addUsers() {
   console.log("Seeding finished!");
 }
 async function addPosts() {
-  console.log("🚀 Đang nạp 100 bài Post với nội dung text phong phú...");
+  console.log("🚀 Đang nạp 100 bài Post (Text + Image + Video)...");
 
+  // Xóa post cũ để tránh bị rác database khi seed lại
   await prisma.post.deleteMany();
 
   const allUsers = await prisma.user.findMany({ select: { id: true } });
-  if (allUsers.length === 0) return;
+  if (allUsers.length === 0) {
+    console.log("❌ Không tìm thấy user nào. Hãy seed user trước!");
+    return;
+  }
 
   const sentences = [
     "Hôm nay vừa hoàn thành xong tính năng chat realtime, cảm giác thật tuyệt vời! 💻",
     "Có ai cảm thấy Next.js 15 chạy nhanh hơn hẳn không mọi người?",
-    "Học lập trình không khó, quan trọng là phải kiên trì mỗi ngày. Đừng bỏ cuộc nhé anh em!",
+    "Học lập trình không khó, quan trọng là phải kiên trì mỗi ngày. 🚀",
     "Sáng nay làm ly cà phê sữa đá rồi ngồi debug, thấy cuộc đời vẫn đẹp sao. ☕️",
-    "Mọi người thường dùng thư viện nào để quản lý state trong React? Redux, Zustand hay Context API?",
-    "Vừa đọc được một bài viết rất hay về kiến trúc Microservices, kiến thức đúng là vô tận.",
-    "Cuối tuần này có ai đi cafe offline hội lập trình viên ở Hà Nội không?",
+    "Mọi người thường dùng thư viện nào để quản lý state? Zustand hay Context API?",
+    "Vừa quay được đoạn clip chill chill lúc gõ code xong. 🎥",
+    "Video demo tính năng mới của app mình đây, anh em cho xin ý kiến nhé!",
+    "Bí kíp để code nhanh là gì? Đó là đừng code khi đang buồn ngủ. 😂",
     "Cái lỗi 'undefined' này nó ám mình cả buổi sáng rồi, cứu tui với! 😭",
-    "Đang tìm hiểu về Prisma 7, thấy cái Driver Adapter cho Postgres xịn thực sự.",
-    "Bí kíp để code nhanh là gì? Đó là đừng code khi đang buồn ngủ. Chúc anh em ngủ ngon!",
-    "Thế giới này rộng lớn quá, còn bao nhiêu framework mình chưa kịp học.",
-    "Ai rồi cũng phải học SQL thôi, không chạy đi đâu được đâu.",
     "Mới đổi sang dùng phím cơ, gõ code cảm giác như đang đánh đàn ấy. 🎹",
-    "Dự án này mà xong chắc mình phải đi du lịch một chuyến cho khuây khỏa.",
-    "Yêu một lập trình viên là bạn sẽ không bao giờ lo họ ngoại tình, vì họ bận debug hết thời gian rồi. 😂",
-    "Hôm nay mình vừa commit một đống code rác, hy vọng reviewer sẽ không thấy...",
-    "Deep learning, AI, Machine Learning... nghe thì sang chảnh nhưng thực chất là toán học cả thôi.",
-    "Vừa setup xong bộ rule cho Cursor AI, gõ code sướng như bay!",
+  ];
+
+  const sampleVideos = [
+    `${VIDEO_URL}/BigBuckBunny.mp4`,
+    `${VIDEO_URL}/ElephantsDream.mp4`,
+    `${VIDEO_URL}/ForBiggerBlazes.mp4`,
+    `${VIDEO_URL}/ForBiggerEscapes.mp4`,
+    `${VIDEO_URL}/ForBiggerJoyrides.mp4`,
+    `${VIDEO_URL}/ForBiggerMeltdowns.mp4`,
+    `${VIDEO_URL}/Sintel.mp4`,
+    `${VIDEO_URL}/SubaruOutbackAds.mp4`,
+    `${VIDEO_URL}/TearsOfSteel.mp4`,
+    `${VIDEO_URL}/VolkswagenGTIReview.mp4`,
+    `${VIDEO_URL}/WeAreGoingOnBullrun.mp4`,
+    `${VIDEO_URL}/WhatCarCanYouGetForAGrand.mp4`,
   ];
 
   const postsData = [];
@@ -212,7 +224,7 @@ async function addPosts() {
   for (let i = 1; i <= 100; i++) {
     const randomUser = allUsers[Math.floor(Math.random() * allUsers.length)];
 
-    // Tạo nội dung text ngẫu nhiên (ghép từ 1 đến 3 câu trong mảng trên)
+    // Tạo nội dung text ngẫu nhiên
     const numSentences = Math.floor(Math.random() * 3) + 1;
     let textContent = "";
     for (let j = 0; j < numSentences; j++) {
@@ -220,26 +232,36 @@ async function addPosts() {
         sentences[Math.floor(Math.random() * sentences.length)] + " ";
     }
 
-    // Tỉ lệ có ảnh thấp (khoảng 25-30%)
-    const hasImage = Math.random() > 0.75;
-    const randomImageId = Math.floor(Math.random() * 5000) + i;
-    const mediaUrl = hasImage
-      ? `https://picsum.photos/seed/${randomImageId}/1000/600`
-      : null;
+    // Logic trộn Media:
+    // 0.0 -> 0.6: Text Only (60%)
+    // 0.6 -> 0.85: Image (25%)
+    // 0.85 -> 1.0: Video (15%)
+    const randomType = Math.random();
+    let mediaUrl = null;
+
+    if (randomType > 0.85) {
+      mediaUrl = sampleVideos[Math.floor(Math.random() * sampleVideos.length)];
+    } else if (randomType > 0.6) {
+      const randomImageId = Math.floor(Math.random() * 1000);
+      mediaUrl = `https://picsum.photos/seed/${randomImageId}/1000/600`;
+    }
 
     postsData.push({
       text: textContent.trim(),
       mediaUrl: mediaUrl,
       authorId: randomUser.id,
-      createdAt: new Date(Date.now() - i * 1800000), // Mỗi post cách nhau 30p để timeline dày đặc hơn
+      // Tạo thời gian đăng bài cách nhau để Feed trải dài
+      createdAt: new Date(Date.now() - i * 3600000),
     });
   }
 
+  // Sử dụng createMany để tối ưu tốc độ (Batch Insert)
   await prisma.post.createMany({
     data: postsData,
+    skipDuplicates: true,
   });
 
-  console.log("✅ Thành công: 100 posts với text đa dạng đã sẵn sàng!");
+  console.log("✅ Thành công: 100 posts (Text + Image + Video) đã sẵn sàng!");
 }
 async function addInteractions() {
   console.log("🚀 Đang tạo Like và Bookmark ngẫu nhiên...");
@@ -343,9 +365,9 @@ async function addComments() {
   console.log(`✅ Đã nạp xong ${commentsData.length} Comments!`);
 }
 async function main() {
-  // await addUsers();
-  // await addPosts();
-  // await addInteractions();
+  await addUsers();
+  await addPosts();
+  await addInteractions();
   await addComments();
 }
 

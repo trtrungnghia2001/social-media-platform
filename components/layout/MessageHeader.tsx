@@ -24,7 +24,7 @@ const MessageHeader = ({ user }: { user: UserDataType }) => {
   }, [user.id, auth?.id]);
 
   return (
-    <section className="p-4 flex items-center justify-between gap-8 border-b border-b-border shadow">
+    <section className="sticky top-0 p-4 flex items-center justify-between gap-8 border-b border-b-border shadow">
       <div className="flex items-center gap-4">
         <ButtonHistoryBack />
         <Link
