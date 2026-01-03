@@ -51,15 +51,26 @@ const PostCard = ({ post }: { post: PostDataType }) => {
             ></div>
           )}
           {post.mediaUrl && (
-            <Image
-              alt={post.mediaUrl}
-              src={post.mediaUrl}
-              loading="lazy"
-              width={256}
-              height={256}
-              unoptimized
-              className="h-auto rounded-lg"
-            />
+            <>
+              {post.mediaUrl.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                <video
+                  src={post.mediaUrl}
+                  controls
+                  className="w-full h-auto max-h-[500px]"
+                  preload="metadata"
+                />
+              ) : (
+                <Image
+                  alt="Post media"
+                  src={post.mediaUrl}
+                  loading="lazy"
+                  width={500}
+                  height={500}
+                  unoptimized
+                  className="w-full h-auto object-cover"
+                />
+              )}
+            </>
           )}
         </Link>
         {/* action */}

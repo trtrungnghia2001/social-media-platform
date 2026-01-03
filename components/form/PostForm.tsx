@@ -132,11 +132,18 @@ const PostForm = () => {
           <input
             name="file"
             type="file"
+            accept="image/*, video/*"
             ref={inputFileRef}
             hidden
             onChange={(e) => {
               const selectedFile = e.target.files?.[0];
+
               if (selectedFile) {
+                if (selectedFile.size > 10 * 1024 * 1024) {
+                  alert("File quá lớn bro ơi!. Kích thước file dưới 10MB");
+                  return;
+                }
+
                 setFile(selectedFile);
               }
             }}
@@ -166,19 +173,23 @@ const PostForm = () => {
           <div className="border-t border-t-border pt-2 relative">
             <button
               onClick={() => setFile(null)}
-              className="btn-options absolute top-2 right-2"
+              className="btn-options absolute top-2 right-2 z-10"
             >
               <X size={16} />
             </button>
-            <Image
-              alt="file"
-              src={filePreview}
-              loading="lazy"
-              width={128}
-              height={128}
-              unoptimized
-              className="rounded-lg"
-            />
+            {file?.type.includes("video") ? (
+              <video src={filePreview} controls className="img max-w-1/2" />
+            ) : (
+              <Image
+                alt="file"
+                src={filePreview}
+                loading="lazy"
+                width={128}
+                height={128}
+                unoptimized
+                className="rounded-lg img max-w-1/2"
+              />
+            )}
           </div>
         )}
       </form>

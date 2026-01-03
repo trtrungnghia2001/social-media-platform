@@ -50,7 +50,7 @@ const ProfilePage = async ({
               width={128}
               height={128}
               unoptimized
-              className="rounded-full img"
+              className="rounded-full img aspect-square"
             />
             <OnlineStatus userId={user.id} className="bottom-4 right-4" />
           </div>

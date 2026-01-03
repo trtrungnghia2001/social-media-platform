@@ -27,20 +27,28 @@ export const uploadToCloudinary = async (file: File) => {
   const cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME as string;
   const upload_preset = process.env
     .NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET as string;
-  console.log({ upload_preset, cloud_name });
+
+  const resourceType = file.type.startsWith("video") ? "video" : "image";
 
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", upload_preset);
 
   const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
+    `https://api.cloudinary.com/v1_1/${cloud_name}/${resourceType}/upload`,
     {
       method: "POST",
       body: formData,
     }
   );
+
   const data = await res.json();
+
+  if (!res.ok) {
+    console.error("Cloudinary Error:", data.error?.message);
+    throw new Error(data.error?.message || "Upload failed");
+  }
+
   return data.secure_url;
 };
 

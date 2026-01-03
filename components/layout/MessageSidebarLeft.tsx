@@ -1,5 +1,5 @@
 "use client";
-import { memo, useMemo } from "react";
+import { ComponentProps, memo, useMemo } from "react";
 import InputSearch from "../form/InputSearch";
 import OnlineStatus from "../OnlineStatus";
 import clsx from "clsx";
@@ -13,14 +13,23 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { Check, CheckCheck } from "lucide-react";
 import { UserDataType } from "@/types";
 
-const MessageSidebarLeft = () => {
+const MessageSidebarLeft = ({
+  className,
+  ...props
+}: ComponentProps<"aside">) => {
   const { data: users } = useQuery({
     queryKey: ["users"],
     queryFn: async () => await getUsers(),
   });
 
   return (
-    <aside className="h-full py-4 px-2 w-full sm:w-3xs flex flex-col gap-4 border-r border-r-border">
+    <aside
+      className={clsx([
+        `h-full py-4 px-2 w-full xl:w-3xs flex flex-col gap-4 xl:border-r xl:border-r-border`,
+        className,
+      ])}
+      {...props}
+    >
       <div className="px-2">
         <InputSearch />
       </div>

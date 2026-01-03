@@ -1,6 +1,7 @@
 "use client";
 import MessageSidebarLeft from "@/components/layout/MessageSidebarLeft";
 import { useSocketContext } from "@/contexts/SocketContext";
+import clsx from "clsx";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -17,12 +18,22 @@ const Layout = ({
       setCurrentUser(null);
       return;
     }
-  }, [username, username]);
+  }, [username, setCurrentUser]);
 
   return (
-    <div className="h-screen flex items-stretch">
-      <MessageSidebarLeft />
-      <section className="h-full flex-1">{children}</section>
+    <div className="h-screen flex items-stretch overflow-y-hidden">
+      <MessageSidebarLeft
+        className={clsx(username ? "hidden xl:block" : "block")}
+      />
+
+      <section
+        className={clsx(
+          "flex-1 h-full bg-background",
+          !username ? "hidden xl:block" : "block"
+        )}
+      >
+        {children}
+      </section>
     </div>
   );
 };

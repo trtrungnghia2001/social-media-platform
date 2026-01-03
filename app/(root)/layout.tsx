@@ -1,4 +1,5 @@
 "use client";
+import MobileNav from "@/components/layout/MobileNav";
 import SidebarLeft from "@/components/layout/SidebarLeft";
 import SidebarRight from "@/components/layout/SidebarRight";
 import { usePathname } from "next/navigation";
@@ -18,14 +19,17 @@ const LayoutRoot = ({
   }, [pathname]);
 
   return (
-    <div className="flex items-start gap-6 max-w-7xl w-full mx-auto">
-      <SidebarLeft className="hidden md:block" />
-      <main className="flex-1 border-x border-border min-h-screen">
-        {children}
-      </main>
-      {!isHiddenSidebarRight && <SidebarRight />}
-      <Toaster position="top-center" reverseOrder={false} />
-    </div>
+    <>
+      <div className="flex items-start gap-6 max-w-7xl w-full mx-auto mb-14 md:mb-0">
+        <SidebarLeft className="hidden md:block" />
+        <main className="flex-1 border-x border-border min-h-screen">
+          {children}
+        </main>
+        {!isHiddenSidebarRight && <SidebarRight />}
+        <Toaster position="top-center" reverseOrder={false} />
+      </div>
+      <MobileNav />
+    </>
   );
 };
 

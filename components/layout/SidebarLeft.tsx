@@ -34,7 +34,11 @@ export type NavItemType = {
   count?: number;
 };
 
-const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
+interface SidebarLeft extends ComponentProps<"aside"> {
+  onCloseSidebar?: () => void;
+}
+
+const SidebarLeft = ({ className, onCloseSidebar, ...props }: SidebarLeft) => {
   const { counts } = useSocketContext();
   const { theme, toggleTheme } = useThemeContext();
   const pathname = usePathname();
@@ -110,6 +114,9 @@ const SidebarLeft = ({ className, ...props }: ComponentProps<"aside">) => {
               <li key={nav.title}>
                 <Link
                   href={nav.path}
+                  onMouseDown={(e) => {
+                    onCloseSidebar?.();
+                  }}
                   className={clsx(
                     `flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full`,
                     pathname === nav.path && `font-bold`
