@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "./SocketContext";
 import { AuthProvider } from "./AuthContext";
 import { CommentProvider } from "./CommentContext";
+import { VideoCallProvider } from "./VideoCallContext";
 
 export const queryClient = new QueryClient();
 
@@ -24,9 +25,11 @@ const Provider = ({
       >
         <AuthProvider>
           <SocketProvider>
-            <CommentProvider>
-              <ThemeProvider>{children}</ThemeProvider>
-            </CommentProvider>
+            <VideoCallProvider>
+              <CommentProvider>
+                <ThemeProvider>{children}</ThemeProvider>
+              </CommentProvider>
+            </VideoCallProvider>
           </SocketProvider>
         </AuthProvider>
       </ClerkProvider>

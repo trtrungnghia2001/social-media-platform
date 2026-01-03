@@ -54,6 +54,42 @@ app.prepare().then(() => {
         io.to(recipientIdSocket).emit("message-read", { readBy: senderId });
       }
     });
+
+    // --- WebRTC Video Call Logic ---
+
+    // 1. Chuyển tiếp Offer (Lời mời gọi)
+    socket.on("send-offer", ({ to, from, offer }) => {
+      const recipientSocketId = onlineUsers.get(to);
+      if (recipientSocketId) {
+        console.log(`Đang chuyển Offer từ ${from} tới ${to}`);
+        io.to(recipientSocketId).emit("receive-offer", { from, offer });
+      }
+    });
+
+    // 2. Chuyển tiếp Answer (Lời chấp nhận)
+    socket.on("send-answer", ({ to, answer }) => {
+      const recipientSocketId = onlineUsers.get(to);
+      if (recipientSocketId) {
+        console.log(`Đang chuyển Answer tới ${to}`);
+        io.to(recipientSocketId).emit("receive-answer", { answer });
+      }
+    });
+
+    // 3. Chuyển tiếp ICE Candidate (Địa chỉ mạng)
+    socket.on("send-ice", ({ to, candidate }) => {
+      const recipientSocketId = onlineUsers.get(to);
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("receive-ice", { candidate });
+      }
+    });
+
+    // 4. (Tùy chọn) Báo kết thúc cuộc gọi
+    socket.on("end-call", ({ to }) => {
+      const recipientSocketId = onlineUsers.get(to);
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("call-ended");
+      }
+    });
   });
 
   httpServer

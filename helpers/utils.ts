@@ -84,3 +84,19 @@ export const playNotificationSound = () => {
     });
   }
 };
+
+export const playRingtone = () => {
+  const audio = new Audio("/sounds/callvideo.mp3");
+  audio.volume = 0.6;
+  audio.loop = true;
+
+  const playPromise = audio.play();
+
+  if (playPromise !== undefined) {
+    playPromise.catch((error) => {
+      console.log("Nhạc chuông bị chặn do chính sách trình duyệt:", error);
+    });
+  }
+
+  return audio;
+};

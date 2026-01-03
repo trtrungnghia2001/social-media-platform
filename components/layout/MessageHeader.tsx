@@ -10,10 +10,12 @@ import { useSocketContext } from "@/contexts/SocketContext";
 import { readMessages } from "@/lib/actions";
 import { useAuthContext } from "@/contexts/AuthContext";
 import ButtonHistoryBack from "../ButtonHistoryBack";
+import { useVideoCallContext } from "@/contexts/VideoCallContext";
 
 const MessageHeader = ({ user }: { user: UserDataType }) => {
   const { auth } = useAuthContext();
   const { setCurrentUser } = useSocketContext();
+  const { handleCall } = useVideoCallContext();
 
   useEffect(() => {
     if (!user || !auth) return;
@@ -50,7 +52,7 @@ const MessageHeader = ({ user }: { user: UserDataType }) => {
         </Link>
       </div>
       <div>
-        <button className="btn-options">
+        <button className="btn-options" onClick={handleCall}>
           <Video size={18} />
         </button>
       </div>
