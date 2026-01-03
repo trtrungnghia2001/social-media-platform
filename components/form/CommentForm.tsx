@@ -157,6 +157,7 @@ const CommentForm = ({
           <input
             name="file"
             type="file"
+            accept="image/*"
             ref={inputFileRef}
             hidden
             onChange={(e) => {
