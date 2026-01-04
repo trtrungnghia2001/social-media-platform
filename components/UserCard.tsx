@@ -1,5 +1,6 @@
 "use client";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { queryClient } from "@/contexts/Provider";
 import { useSocketContext } from "@/contexts/SocketContext";
 import { IMAGE_DEFAULT } from "@/helpers/constants";
 import { toggleFollow } from "@/lib/actions";
@@ -8,7 +9,13 @@ import { Loader } from "lucide-react";
 import Image from "next/image";
 import { memo, useState } from "react";
 
-const UserCard = ({ user }: { user: UserDataType }) => {
+const UserCard = ({
+  user,
+  search,
+}: {
+  user: UserDataType;
+  search?: string;
+}) => {
   const { auth } = useAuthContext();
   const { handleNotification } = useSocketContext();
   const [isloading, setIsLoading] = useState(false);
@@ -21,6 +28,7 @@ const UserCard = ({ user }: { user: UserDataType }) => {
       if (data) {
         handleNotification({ recipientId: user.id, data });
       }
+      queryClient.invalidateQueries({ queryKey: ["users", search] });
     } catch (error) {
       console.error(error);
     } finally {

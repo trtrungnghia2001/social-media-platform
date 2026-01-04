@@ -3,7 +3,6 @@
 import { IMAGE_DEFAULT } from "@/helpers/constants";
 import { Ellipsis } from "lucide-react";
 import Image from "next/image";
-import InputSearch from "../form/InputSearch";
 
 // Type cho phần Xu hướng (Trends)
 export type TrendType = {
@@ -55,7 +54,6 @@ export const recommendations: RecommendationType[] = [
 const SidebarRight = () => {
   return (
     <aside className="w-xs pt-4 space-y-4 hidden xl:block">
-      <InputSearch />
       <section className="border border-border rounded-lg py-4">
         <h2 className="px-4 mb-4">What&apos;s happening</h2>
         <ul>
@@ -95,7 +93,7 @@ const SidebarRight = () => {
                 />
                 <div>
                   <h3>{recom.name}</h3>
-                  <p className="text-13 text-secondary">@{recom.handle}</p>
+                  <p className="text-13 text-secondary">{recom.handle}</p>
                 </div>
               </div>
               <button className="btn font">Follow</button>

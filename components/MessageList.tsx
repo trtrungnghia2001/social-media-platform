@@ -3,7 +3,7 @@ import { useSocketContext } from "@/contexts/SocketContext";
 import MessageCard from "./MessageCard";
 import { getMessagesInfinite } from "@/lib/actions";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useInView } from "react-intersection-observer";
 import { Loader2 } from "lucide-react";
 
@@ -33,18 +33,25 @@ const MessageList = () => {
       enabled: !!currentUser?.id,
     });
 
-  // Gộp tin nhắn (giữ nguyên logic của bro nhưng fix reverse)
   const allMessages = useMemo(() => {
     const socketFilter = socketMessages.filter(
       (m) => m.receiverId === currentUser?.id || m.senderId === currentUser?.id
     );
-    if (!data) return socketFilter;
-    const fetchMess = [...data.pages].reverse().flatMap((p) => p.messages);
-    return [...fetchMess, ...socketFilter];
-  }, [data, socketMessages, currentUser]);
 
-  // 1. XỬ LÝ LOAD TIN CŨ (SCROLL ANCHORING)
-  // Chạy TRƯỚC khi trình duyệt vẽ lại UI
+    const fetchMess = data ? data.pages.flatMap((p) => p.messages) : [];
+
+    const messageMap = new Map();
+
+    fetchMess.forEach((m) => messageMap.set(m.id, m));
+
+    socketFilter.forEach((m) => messageMap.set(m.id, m));
+
+    return Array.from(messageMap.values()).sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }, [data, socketMessages, currentUser?.id]);
+
   useLayoutEffect(() => {
     if (isFetchingNextPage && containerRef.current) {
       // Chụp ảnh chiều cao hiện tại trước khi tin nhắn mới (cũ hơn) đổ vào
@@ -81,7 +88,6 @@ const MessageList = () => {
     }
   }, [allMessages.length, isFetchingNextPage]);
 
-  // 2. XỬ LÝ TIN NHẮN MỚI (SOCKET)
   useEffect(() => {
     if (isInitialLoad.current || !containerRef.current) return;
 
@@ -96,7 +102,6 @@ const MessageList = () => {
     }
   }, [socketMessages.length]);
 
-  // 3. TRIGGER FETCH NEXT PAGE
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -107,7 +112,7 @@ const MessageList = () => {
     <section
       ref={containerRef}
       className="flex-1 overflow-y-auto scrollbar-beauty p-4 relative"
-      style={{ overflowAnchor: "none" }} // Tắt tính năng mặc định của trình duyệt để không xung đột logic
+      style={{ overflowAnchor: "none" }}
     >
       <ul className="space-y-4">
         <li ref={topRef} className="p-2 flex justify-center">

@@ -59,7 +59,7 @@ app.prepare().then(() => {
 
     // 1. Chuyển tiếp Offer (Lời mời gọi)
     socket.on("send-offer", ({ to, from, offer }) => {
-      const recipientSocketId = onlineUsers.get(to);
+      const recipientSocketId = onlineUsers.get(to.id);
       if (recipientSocketId) {
         console.log(`Đang chuyển Offer từ ${from} tới ${to}`);
         io.to(recipientSocketId).emit("receive-offer", { from, offer });

@@ -31,6 +31,7 @@ const PostForm = () => {
       icon: ImageIcon,
       label: "Media",
       color: "text-sky-500",
+      show: true,
     },
     { icon: FileCheck, label: "GIF", color: "text-sky-500" },
     { icon: ListTodo, label: "Poll", color: "text-sky-500" },
@@ -44,7 +45,6 @@ const PostForm = () => {
       icon: MapPin,
       label: "Location",
       color: "text-sky-500",
-      disabled: true,
     },
   ];
 
@@ -139,8 +139,8 @@ const PostForm = () => {
               const selectedFile = e.target.files?.[0];
 
               if (selectedFile) {
-                if (selectedFile.size > 10 * 1024 * 1024) {
-                  alert("File quá lớn bro ơi!. Kích thước file dưới 10MB");
+                if (selectedFile.size > 50 * 1024 * 1024) {
+                  alert("File quá lớn bro ơi!. Kích thước file dưới 50MB");
                   return;
                 }
 
@@ -155,10 +155,9 @@ const PostForm = () => {
                 onClick={() => {
                   handleIconClick(item.label);
                 }}
+                disabled={isLoading || !item.show}
                 type="button"
-                className={`p-2 rounded-full hover:bg-sky-500/10 transition-colors ${
-                  item.color
-                } ${item.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`p-2 rounded-full hover:bg-sky-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${item.color} `}
                 title={item.label}
               >
                 <item.icon size={16} strokeWidth={2} />
@@ -172,6 +171,7 @@ const PostForm = () => {
         {filePreview && (
           <div className="border-t border-t-border pt-2 relative">
             <button
+              disabled={isLoading}
               onClick={() => setFile(null)}
               className="btn-options absolute top-2 right-2 z-10"
             >

@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "NODE_ENV=production node server.js",
-    "build": "next build",
-    "postinstall": "prisma generate",
     "lint": "eslint",
-    "database": "tsx helpers/database.ts",
     "db:studio": "prisma studio",
-    "db": "prisma db push && prisma generate"
+    "db": "prisma db push && prisma generate",
+    "dev": "nodemon server.js",
+    "build": "prisma generate && next build",
+    "start": "npx prisma migrate deploy && NODE_ENV=production node server.js",
+    "postinstall": "prisma generate",
+    "database": "tsx helpers/database.ts"
   },
   "dependencies": {
     "@clerk/elements": "^0.24.2",

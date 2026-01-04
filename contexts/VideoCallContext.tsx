@@ -10,17 +10,19 @@ import {
 import { useSocketContext } from "./SocketContext";
 import { socket, useAuthContext } from "./AuthContext";
 import { CallModal } from "@/components/CallModal";
+import { UserDataType } from "@/types";
+import { playRingtone } from "@/helpers/utils";
 
 type VideoCallContextType = {
   handleCall: () => Promise<void>;
   handleAcceptCall: () => Promise<void>;
   leaveCall: () => void;
   isCalling: boolean;
-  incomingCall: { from: string; offer: RTCSessionDescriptionInit } | null;
+  incomingCall: { from: UserDataType; offer: RTCSessionDescriptionInit } | null;
   localVideoRef: React.RefObject<HTMLVideoElement | null>;
   remoteVideoRef: React.RefObject<HTMLVideoElement | null>;
   setIncomingCall: (
-    val: { from: string; offer: RTCSessionDescriptionInit } | null
+    val: { from: UserDataType; offer: RTCSessionDescriptionInit } | null
   ) => void;
 };
 
@@ -30,9 +32,10 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
   const { auth } = useAuthContext();
   const { currentUser } = useSocketContext();
 
+  // state
   const [isCalling, setIsCalling] = useState(false);
   const [incomingCall, setIncomingCall] = useState<{
-    from: string;
+    from: UserDataType;
     offer: RTCSessionDescriptionInit;
   } | null>(null);
 
@@ -41,18 +44,41 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const currentRemoteId = useRef<string | null>(null);
-
-  // Ref để quản lý nhạc chuông
-  const ringtoneAudioRef = useRef<HTMLAudioElement | null>(null);
+  const ringtoneRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // 1. Khởi tạo nhạc chuông (Client-side)
-    if (typeof window !== "undefined") {
-      ringtoneAudioRef.current = new Audio("/sounds/ringtone.mp3");
-      ringtoneAudioRef.current.loop = true;
+    if (incomingCall && !isCalling) {
+      // Chỉ tạo mới nếu chưa có nhạc đang phát
+      if (!ringtoneRef.current) {
+        ringtoneRef.current = playRingtone();
+      }
+    } else {
+      // Tắt nhạc khi đã nghe máy hoặc không còn cuộc gọi đến
+      if (ringtoneRef.current) {
+        ringtoneRef.current.pause();
+        ringtoneRef.current.currentTime = 0;
+        ringtoneRef.current = null;
+      }
     }
 
-    // 2. Khởi tạo PeerConnection
+    return () => {
+      if (ringtoneRef.current) {
+        ringtoneRef.current.pause();
+        ringtoneRef.current = null;
+      }
+    };
+  }, [incomingCall, isCalling]);
+
+  // ring
+  const stopRingtone = () => {
+    if (ringtoneRef.current) {
+      ringtoneRef.current.pause();
+      ringtoneRef.current.currentTime = 0;
+      ringtoneRef.current = null;
+    }
+  };
+
+  useEffect(() => {
     pc.current = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     });
@@ -72,12 +98,9 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    // 3. Lắng nghe tín hiệu Socket
     socket.on("receive-offer", ({ from, offer }) => {
       currentRemoteId.current = from;
       setIncomingCall({ from, offer });
-
-      startRingtone();
     });
 
     socket.on("receive-answer", async ({ answer }) => {
@@ -103,7 +126,6 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => {
-      stopRingtone();
       socket.off("receive-offer");
       socket.off("receive-answer");
       socket.off("receive-ice");
@@ -111,47 +133,6 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
       pc.current?.close();
     };
   }, []);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const audio = new Audio();
-      audio.src = "/sounds/ringtone.mp3"; // Gán src riêng thay vì bỏ vào constructor
-      audio.loop = true;
-      audio.preload = "auto"; // Ép trình duyệt tải trước dữ liệu
-
-      // Kiểm tra xem trình duyệt có đọc được file này không
-      audio.oncanplaythrough = () => console.log("Âm thanh đã sẵn sàng!");
-      audio.onerror = () =>
-        console.error(
-          "Lỗi tải file âm thanh. Kiểm tra lại đường dẫn/định dạng."
-        );
-
-      ringtoneAudioRef.current = audio;
-    }
-  }, []);
-
-  const startRingtone = async () => {
-    if (ringtoneAudioRef.current) {
-      try {
-        // Ép trình duyệt load lại file để tránh lỗi "no supported sources" do cache
-        ringtoneAudioRef.current.load();
-        await ringtoneAudioRef.current.play();
-        console.log("Nhạc chuông đang phát...");
-      } catch (err) {
-        console.warn(
-          "Chưa phát được nhạc chuông. Lý do: Người dùng chưa tương tác với trang.",
-          err
-        );
-      }
-    }
-  };
-
-  const stopRingtone = () => {
-    if (ringtoneAudioRef.current) {
-      ringtoneAudioRef.current.pause();
-      ringtoneAudioRef.current.currentTime = 0;
-    }
-  };
 
   const startLocalStream = async () => {
     try {
@@ -176,14 +157,14 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
     await startLocalStream();
     const offer = await pc.current?.createOffer();
     await pc.current?.setLocalDescription(offer);
-    socket.emit("send-offer", { to: currentUser.id, from: auth.id, offer });
+    socket.emit("send-offer", { to: currentUser, from: auth, offer });
   };
 
   const handleAcceptCall = async () => {
     if (!incomingCall || !pc.current) return;
     stopRingtone();
     setIsCalling(true);
-    currentRemoteId.current = incomingCall.from;
+    currentRemoteId.current = incomingCall.from.id;
 
     setTimeout(async () => {
       await startLocalStream();
@@ -198,7 +179,7 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
 
       const answer = await pc.current!.createAnswer();
       await pc.current!.setLocalDescription(answer);
-      socket.emit("send-answer", { to: incomingCall.from, answer });
+      socket.emit("send-answer", { to: incomingCall.from.id, answer });
       setIncomingCall(null);
     }, 50);
   };
@@ -211,7 +192,6 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const stopStreamsAndReset = () => {
-    stopRingtone();
     setIsCalling(false);
     setIncomingCall(null);
 
@@ -223,9 +203,6 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
 
     if (localVideoRef.current) localVideoRef.current.srcObject = null;
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
-
-    // Reload để làm sạch hoàn toàn trạng thái PeerConnection
-    window.location.reload();
   };
 
   return (
@@ -257,14 +234,14 @@ export const VideoCallProvider = ({ children }: { children: ReactNode }) => {
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="w-[320px] h-[240px] bg-gray-900 object-cover"
+            className="w-80 aspect-video bg-gray-900 object-cover"
           />
           <video
             ref={localVideoRef}
             autoPlay
             playsInline
             muted
-            className="w-[100px] h-[75px] absolute top-2 right-2 rounded border-2 border-white shadow-md object-cover bg-gray-800"
+            className="w-28 aspect-video absolute top-2 right-2 rounded border-2 border-white shadow-md object-cover bg-gray-800"
           />
         </div>
 

@@ -86,9 +86,15 @@ export const playNotificationSound = () => {
 };
 
 export const playRingtone = () => {
-  const audio = new Audio("/sounds/callvideo.mp3");
+  const audio = new Audio("/sounds/ringtone.mp3");
   audio.volume = 0.6;
   audio.loop = true;
+
+  audio.onended = () => {
+    if (audio.loop) {
+      audio.play().catch((e) => console.log("Replay failed", e));
+    }
+  };
 
   const playPromise = audio.play();
 
@@ -97,6 +103,5 @@ export const playRingtone = () => {
       console.log("Nhạc chuông bị chặn do chính sách trình duyệt:", error);
     });
   }
-
   return audio;
 };

@@ -11,7 +11,11 @@ import {
 import { socket, useAuthContext } from "./AuthContext";
 import toast from "react-hot-toast";
 import { getNotificationText, playNotificationSound } from "@/helpers/utils";
-import { getAuthUnreadCounts, markAllNotificationsAsRead } from "@/lib/actions";
+import {
+  getAuthUnreadCounts,
+  markAllNotificationsAsRead,
+  readMessages,
+} from "@/lib/actions";
 import { usePathname } from "next/navigation";
 import { MessageDataType, NotificationDataType, UserDataType } from "@/types";
 import { queryClient } from "./Provider";
@@ -109,13 +113,19 @@ export const SocketProvider = ({
     });
   };
   useEffect(() => {
-    if (pathname === `/notifications` && counts.unreadNotifications) {
-      (async () => {
+    if (pathname === "/notifications") {
+      const clearNotis = async () => {
         await markAllNotificationsAsRead();
-        setCounts((prev) => ({ ...prev, unreadNotifications: 0 }));
-      })();
+
+        setCounts((prev) => {
+          if (prev.unreadNotifications === 0) return prev;
+          return { ...prev, unreadNotifications: 0 };
+        });
+      };
+
+      clearNotis();
     }
-  }, [pathname, counts]);
+  }, [pathname]);
 
   // messages
   const handleSendMessage = (mess: MessageDataType) => {
@@ -175,27 +185,35 @@ export const SocketProvider = ({
     const handleReceiverMessage = (mess: MessageDataType) => {
       setMessages((prev) => [...prev, mess]);
 
-      setCounts((prev) => ({
-        ...prev,
-        unreadMessages: prev.unreadMessages + 1,
-      }));
+      if (currentUser?.id !== mess.senderId) {
+        setCounts((prev) => ({
+          ...prev,
+          unreadMessages: prev.unreadMessages + 1,
+        }));
 
-      const messages = `${mess.sender.name} sent you a message`;
-
-      playNotificationSound();
-
-      toast(messages, {
-        position: "bottom-left",
-      });
+        const messages = `${mess.sender.name} sent you a message`;
+        playNotificationSound();
+        toast(messages, {
+          position: "bottom-left",
+        });
+      }
 
       // cap nhat tin nhan moi
       queryClient.setQueryData(
         ["users", searchUser],
         (oldData: UserDataType[] | null) => {
           if (!oldData) return oldData;
-          return oldData.map((item) =>
-            item.id === mess.senderId ? { ...item, lastMessage: mess } : item
-          );
+
+          const userIndex = oldData.findIndex((u) => u.id === mess.senderId);
+          if (userIndex === -1) return oldData;
+
+          const newData = [...oldData];
+          // Cập nhật và đưa lên đầu
+          const updatedUser = { ...newData[userIndex], lastMessage: mess };
+          newData.splice(userIndex, 1);
+          newData.unshift(updatedUser);
+
+          return newData;
         }
       );
     };
@@ -234,7 +252,24 @@ export const SocketProvider = ({
       socket.off("receiver-message", handleReceiverMessage);
       socket.off("message-read", handleReadMessage);
     };
-  }, [searchUser]);
+  }, [searchUser, currentUser?.id]);
+
+  useEffect(() => {
+    if (!pathname.includes(`messages`) || !currentUser) return;
+
+    const performRead = async () => {
+      const megs = await readMessages(currentUser.id);
+
+      if (megs.count === 0) return;
+
+      setCounts((prev) => ({
+        ...prev,
+        unreadMessages: Math.max(0, prev.unreadMessages - megs.count),
+      }));
+    };
+
+    performRead();
+  }, [pathname, currentUser?.id]);
 
   return (
     <SocketContext.Provider

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 
 import {
@@ -44,6 +44,8 @@ const SidebarLeft = ({ className, onCloseSidebar, ...props }: SidebarLeft) => {
   const pathname = usePathname();
   const { auth } = useAuthContext();
   const { signOut } = useClerk();
+
+  const router = useRouter();
 
   const navItems: NavItemType[] = useMemo(() => {
     return [
@@ -114,8 +116,11 @@ const SidebarLeft = ({ className, onCloseSidebar, ...props }: SidebarLeft) => {
               <li key={nav.title}>
                 <Link
                   href={nav.path}
-                  onMouseDown={() => {
+                  onMouseDown={(e) => {
+                    e.preventDefault();
                     onCloseSidebar?.();
+
+                    router.push(nav.path);
                   }}
                   className={clsx(
                     `flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full`,
@@ -170,8 +175,11 @@ const SidebarLeft = ({ className, onCloseSidebar, ...props }: SidebarLeft) => {
             {!auth && (
               <Link
                 href={`/sign-in`}
-                onMouseDown={() => {
+                onMouseDown={(e) => {
+                  e.preventDefault();
                   onCloseSidebar?.();
+
+                  router.push(`/sign-in`);
                 }}
                 className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
               >

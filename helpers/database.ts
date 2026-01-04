@@ -182,9 +182,6 @@ async function addUsers() {
 async function addPosts() {
   console.log("🚀 Đang nạp 100 bài Post (Text + Image + Video)...");
 
-  // Xóa post cũ để tránh bị rác database khi seed lại
-  await prisma.post.deleteMany();
-
   const allUsers = await prisma.user.findMany({ select: { id: true } });
   if (allUsers.length === 0) {
     console.log("❌ Không tìm thấy user nào. Hãy seed user trước!");
@@ -364,11 +361,56 @@ async function addComments() {
 
   console.log(`✅ Đã nạp xong ${commentsData.length} Comments!`);
 }
+async function addFollows() {
+  console.log("🚀 Đang tạo dữ liệu Follow ngẫu nhiên...");
+
+  const allUsers = await prisma.user.findMany({ select: { id: true } });
+  if (allUsers.length < 2) return;
+
+  const followsData: { followerId: string; followingId: string }[] = [];
+  const followSet = new Set<string>();
+
+  for (const user of allUsers) {
+    // Mỗi user sẽ follow ngẫu nhiên từ 3 đến 8 người khác
+    const numFollows = Math.floor(Math.random() * 6) + 3;
+
+    for (let i = 0; i < numFollows; i++) {
+      const targetUser = allUsers[Math.floor(Math.random() * allUsers.length)];
+
+      // Điều kiện: Không tự follow chính mình và không trùng lặp
+      const key = `${user.id}-${targetUser.id}`;
+      if (user.id !== targetUser.id && !followSet.has(key)) {
+        followsData.push({
+          followerId: user.id,
+          followingId: targetUser.id,
+        });
+        followSet.add(key);
+      }
+    }
+  }
+
+  await prisma.follow.createMany({
+    data: followsData,
+    skipDuplicates: true,
+  });
+
+  console.log(`✅ Đã nạp xong ${followsData.length} quan hệ Follow!`);
+}
 async function main() {
+  await prisma.notification.deleteMany();
+  await prisma.message.deleteMany();
+  await prisma.comment.deleteMany();
+  await prisma.like.deleteMany();
+  await prisma.bookmark.deleteMany();
+  await prisma.follow.deleteMany();
+  await prisma.post.deleteMany();
+  await prisma.user.deleteMany();
+  //
   await addUsers();
   await addPosts();
   await addInteractions();
   await addComments();
+  await addFollows();
 }
 
 main()

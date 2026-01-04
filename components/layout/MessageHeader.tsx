@@ -7,7 +7,7 @@ import OnlineStatus from "../OnlineStatus";
 import { UserDataType } from "@/types";
 import { Video } from "lucide-react";
 import { useSocketContext } from "@/contexts/SocketContext";
-import { readMessages } from "@/lib/actions";
+
 import { useAuthContext } from "@/contexts/AuthContext";
 import ButtonHistoryBack from "../ButtonHistoryBack";
 import { useVideoCallContext } from "@/contexts/VideoCallContext";
@@ -21,8 +21,6 @@ const MessageHeader = ({ user }: { user: UserDataType }) => {
     if (!user || !auth) return;
 
     setCurrentUser(user);
-
-    void readMessages(user.id);
   }, [user.id, auth?.id]);
 
   return (

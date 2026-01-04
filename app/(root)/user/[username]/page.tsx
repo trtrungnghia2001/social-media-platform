@@ -52,7 +52,7 @@ const ProfilePage = async ({
               unoptimized
               className="rounded-full img aspect-square"
             />
-            <OnlineStatus userId={user.id} className="bottom-4 right-4" />
+            <OnlineStatus userId={user.id} className="bottom-4 right-4 w-4" />
           </div>
           <ProfileActions
             user={user}

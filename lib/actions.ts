@@ -184,7 +184,10 @@ export const getUserByUsername = async (
 
   return formattedUser;
 };
-export const getUsers = async (q = ""): Promise<UserDataType[]> => {
+export const getUsers = async (
+  q = "",
+  pageSize = 50
+): Promise<UserDataType[]> => {
   const user = await getOptionalAuth();
   const authId = user?.id;
 
@@ -229,7 +232,7 @@ export const getUsers = async (q = ""): Promise<UserDataType[]> => {
       },
     },
     orderBy: { createdAt: "desc" },
-    take: 30,
+    take: pageSize,
   });
 
   const formattedUsers: UserDataType[] = users.map((u) => {

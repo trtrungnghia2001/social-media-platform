@@ -1,6 +1,8 @@
 "use client";
 
 import { useVideoCallContext } from "@/contexts/VideoCallContext";
+import { IMAGE_DEFAULT } from "@/helpers/constants";
+import Image from "next/image";
 
 export const CallModal = () => {
   const { incomingCall, handleAcceptCall, setIncomingCall } =
@@ -11,14 +13,18 @@ export const CallModal = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white p-6 rounded-2xl shadow-2xl w-80 text-center animate-bounce-short">
-        <div className="mb-4">
-          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-            <span className="text-3xl text-blue-600 font-bold">
-              {incomingCall.from.charAt(0).toUpperCase()}
-            </span>
-          </div>
+        <div className="flex flex-col justify-center items-center gap-1">
+          <Image
+            alt="avatar"
+            src={incomingCall.from.avatarUrl || IMAGE_DEFAULT.AVATAR}
+            width={80}
+            height={80}
+            unoptimized
+            className="aspect-square rounded-full overflow-hidden img"
+          />
           <h3 className="text-xl font-bold text-gray-800">Cuộc gọi đến</h3>
-          <p className="text-gray-500">ID: {incomingCall.from}</p>
+          <p className="text-gray-500 text-13">ID: {incomingCall.from.id}</p>
+          <p className="font-semibold">{incomingCall.from.name}</p>
         </div>
 
         <div className="flex justify-around gap-4 mt-6">
