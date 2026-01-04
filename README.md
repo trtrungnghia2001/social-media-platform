@@ -27,7 +27,7 @@ This social site allows users to connect with each other, share posts, and engag
 ## Technologies Used
 
 * Frontend Core: Next.js 15 (App Router), TypeScript, React 19.
-* State Management & Data Fetching: TanStack Query (React Query) v5, Zustand (for global UI state), React Context API (for Real-time logic).
+* State Management & Data Fetching: TanStack Query (React Query) v5, React Context API (for Real-time logic).
 * Real-time & Communication: Socket.io (Bidirectional communication), WebRTC (P2P Video/Audio streaming).
 * Backend & Database: Node.js (Custom Express Server), Prisma ORM, PostgreSQL (Relational Database).
 * Authentication & Security: Clerk Auth (Middleware protection, Session management), RBAC (Role-based access control).
