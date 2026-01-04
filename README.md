@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Full-stack Real-time Platform
 
-## Getting Started
+A high-performance social media platform designed for real-time engagement. Built with Next.js 15, Socket.io, and Prisma, this project showcases advanced concepts in full-stack development, including real-time data synchronization and complex database relations.
 
-First, run the development server:
+## Table of Contents
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+* [Overview](#overview)
+* [Features](#features)
+* [Technologies Used](#technologies-used)
+* [Demo](#demo)
+* [Images](#images)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This social site allows users to connect with each other, share posts, and engage in discussions. The application includes features such as user profiles, post creation, commenting, and liking.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+* Real-time Messaging: Instant chat functionality with read receipts and online status via Socket.io.
+* Interactive Feed: Dynamic post creation with image support, likes, and comments.
+* Global Search: Optimized search for users and posts using Debounced API calls.
+* Unified Notifications: Real-time alert system for likes, follows, and messages.
+* Infinite Scrolling: Smooth data fetching using TanStack Query (React Query).
+* Secure Auth: Enterprise-grade authentication powered by Clerk.
+* Video Calling: Peer-to-peer video communication integrated with WebRTC.
 
-To learn more about Next.js, take a look at the following resources:
+## Technologies Used
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* Frontend Core: Next.js 15 (App Router), TypeScript, React 19.
+* State Management & Data Fetching: TanStack Query (React Query) v5, Zustand (for global UI state), React Context API (for Real-time logic).
+* Real-time & Communication: Socket.io (Bidirectional communication), WebRTC (P2P Video/Audio streaming).
+* Backend & Database: Node.js (Custom Express Server), Prisma ORM, PostgreSQL (Relational Database).
+* Authentication & Security: Clerk Auth (Middleware protection, Session management), RBAC (Role-based access control).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Demo
 
-## Deploy on Vercel
+(https://social-media-platform-xmlk.onrender.com/)[https://social-media-platform-xmlk.onrender.com/]
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Images
