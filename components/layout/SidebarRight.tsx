@@ -37,16 +37,43 @@ export const trendingData: TrendType[] = [
 
 export const recommendations: RecommendationType[] = [
   {
-    id: "1",
-    name: "Mirko Kiefer",
-    handle: "@mirkokiefer",
-    avatarUrl: "/avatar1.png",
+    id: "user_2pX1",
+    name: "Alex Johnson",
+    handle: "@alex_dev",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400",
+    isVerified: true,
   },
   {
-    id: "2",
-    name: "ONE Championship",
-    handle: "@ONEChampionship",
-    avatarUrl: "/avatar2.png",
+    id: "user_2pX2",
+    name: "Sarah Miller",
+    handle: "@sarah_art",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
+    isVerified: false,
+  },
+  {
+    id: "user_2pX12",
+    name: "Chloe Martin",
+    handle: "@chloe_fashion",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400",
+    isVerified: true,
+  },
+  {
+    id: "user_2pX5",
+    name: "Ryan Wilson",
+    handle: "@ryan_code",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400",
+    isVerified: false,
+  },
+  {
+    id: "user_2pX10",
+    name: "Sophia Garcia",
+    handle: "@sophia_music",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400",
     isVerified: true,
   },
 ];

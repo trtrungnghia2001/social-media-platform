@@ -7,6 +7,7 @@ import { toggleFollow } from "@/lib/actions";
 import { UserDataType } from "@/types";
 import { Loader } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { memo, useState } from "react";
 
 const UserCard = ({
@@ -38,7 +39,10 @@ const UserCard = ({
 
   return (
     <div className="py-3 px-4 hover:bg-secondaryBg flex items-start gap-4">
-      <div className="flex-1 flex items-center gap-2">
+      <Link
+        href={`/user/` + user.username}
+        className="flex-1 flex items-center gap-2"
+      >
         <Image
           width={40}
           height={40}
@@ -51,7 +55,7 @@ const UserCard = ({
           <h3>{user.name}</h3>
           <p className="text-13 text-secondary">@{user.username}</p>
         </div>
-      </div>
+      </Link>
       {auth && (
         <button className="block btn font-bold" onClick={handleFollow}>
           {isloading ? (

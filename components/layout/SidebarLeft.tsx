@@ -164,6 +164,7 @@ const SidebarLeft = ({ className, onCloseSidebar, ...props }: SidebarLeft) => {
                 onClick={() => {
                   if (window.confirm("Signout")) {
                     signOut();
+                    onCloseSidebar?.();
                   }
                 }}
                 className="flex items-center gap-2 px-4 py-2 transition-all rounded-full hover:bg-secondaryBg w-full"
