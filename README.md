@@ -34,6 +34,6 @@ This social site allows users to connect with each other, share posts, and engag
 
 ## Demo
 
-(https://social-media-platform-xmlk.onrender.com/)[https://social-media-platform-xmlk.onrender.com/]
+https://social-media-platform-xmlk.onrender.com(https://social-media-platform-xmlk.onrender.com/)
 
 ## Images
