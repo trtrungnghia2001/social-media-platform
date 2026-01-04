@@ -37,3 +37,7 @@ This social site allows users to connect with each other, share posts, and engag
 [https://social-media-platform-xmlk.onrender.com](https://social-media-platform-xmlk.onrender.com/)
 
 ## Images
+<img width="1617" height="870" alt="1" src="https://github.com/user-attachments/assets/4eee0c11-8d45-4db8-88d5-5d2f207bb092" />
+<img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/982df146-c210-4a7b-b653-3cceadcb1228" />
+<img width="1619" height="867" alt="3" src="https://github.com/user-attachments/assets/006a692a-ffad-4643-8f3e-610daaf15962" />
+<img width="1920" height="973" alt="4" src="https://github.com/user-attachments/assets/38530bd5-65bc-426f-b3e1-6bb27d9cb6f6" />
